@@ -1,0 +1,42 @@
+.text-dark {
+    color: rgb(52, 58, 64) !important;
+}
+
+.header-right .header-profile .dropdown-menu {
+    padding: 15px 0;
+    min-width: 7.5rem;
+}
+
+.slider_image{
+    width:100px;
+    height:80px;
+}
+.slider_image_show{
+    width:250px;
+    margin-bottom:10px;
+}
+.v-images{
+    width: 50%;
+    height: 55%;
+}
+
+.dot {
+    height: 25px;
+    width: 25px !important;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0px 15px;
+}
+
+.has-arrow {
+    cursor: pointer;
+}
+
+.coordinate_text {
+    cursor: pointer;
+    text-decoration: underline;
+    color: #8c0f0f;
+}
+.slider-checkbox{
+    padding-left: 10px;
+}

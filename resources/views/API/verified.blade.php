@@ -14,15 +14,15 @@
 
     @if(App::isLocale('ar'))
 
-        <link href="{{asset('/dashboard/css/style-ar.css')}}" rel="stylesheet">
-        <link href="{{asset('/dashboard/css/custom-ar.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/css/style-ar.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/css/custom-ar.css')}}" rel="stylesheet">
     @else
 
-        <link href="{{asset('/dashboard/css/style.css')}}" rel="stylesheet">
-        <link href="{{asset('/dashboard/css/custom.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/css/style.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/css/custom.css')}}" rel="stylesheet">
     @endif
     {{--  fontawesome  --}}
-    <link href="{{asset('/dashboard/icons/fontawesome-free-5.15.4-web/css/all.css')}}" rel="stylesheet">
+    <link href="{{asset('/public/dashboard/icons/fontawesome-free-5.15.4-web/css/all.css')}}" rel="stylesheet">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Readex+Pro:wght@700&display=swap');
@@ -77,11 +77,11 @@
 
 <!-- Scripts -->
 <!-- Required vendors -->
-<script src="{{asset('/dashboard/vendor/global/global.min.js')}}"></script>
-<script src="{{asset('/dashboard/js/quixnav-init.js')}}"></script>
-<script src="{{asset('/dashboard/js/custom.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/global/global.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/js/quixnav-init.js')}}"></script>
+<script src="{{asset('/public/dashboard/js/custom.min.js')}}"></script>
 
-<script src="{{asset('/dashboard/js/dashboard/dashboard-1.js')}}"></script>
+<script src="{{asset('/public/dashboard/js/dashboard/dashboard-1.js')}}"></script>
 
 @yield('scripts');
 </body>

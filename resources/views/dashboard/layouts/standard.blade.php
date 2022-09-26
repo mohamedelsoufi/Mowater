@@ -12,24 +12,24 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{asset('dashboard/images/favicon.png')}}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     {{--  select2  --}}
-    <link rel="stylesheet" href="{{asset('/dashboard/vendor/select2/css/select2.min.css')}}">
+    <link rel="stylesheet" href="{{asset('/public/dashboard/vendor/select2/css/select2.min.css')}}">
     @if(App::isLocale('ar'))
-        <link rel="stylesheet" href="{{asset('/dashboard/vendor/owl-carousel/css/owl.carousel-ar.min.css')}}">
-        <link rel="stylesheet" href="{{asset('/dashboard/vendor/owl-carousel/css/owl.theme.default-ar.min.css')}}">
-        <link href="{{asset('/dashboard/vendor/jqvmap/css/jqvmap-ar.min.css')}}" rel="stylesheet">
-        <link href="{{asset('/dashboard/vendor/datatables/css/jquery.dataTables-ar.min.css')}}" rel="stylesheet">
-        <link href="{{asset('/dashboard/css/style-ar.css')}}" rel="stylesheet">
-        <link href="{{asset('/dashboard/css/custom-ar.css')}}" rel="stylesheet">
+        <link rel="stylesheet" href="{{asset('/public/dashboard/vendor/owl-carousel/css/owl.carousel-ar.min.css')}}">
+        <link rel="stylesheet" href="{{asset('/public/dashboard/vendor/owl-carousel/css/owl.theme.default-ar.min.css')}}">
+        <link href="{{asset('/public/dashboard/vendor/jqvmap/css/jqvmap-ar.min.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/vendor/datatables/css/jquery.dataTables-ar.min.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/css/style-ar.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/css/custom-ar.css')}}" rel="stylesheet">
     @else
-        <link rel="stylesheet" href="{{asset('/dashboard/vendor/owl-carousel/css/owl.carousel.min.css')}}">
-        <link rel="stylesheet" href="{{asset('/dashboard/vendor/owl-carousel/css/owl.theme.default.min.css')}}">
-        <link href="{{asset('/dashboard/vendor/jqvmap/css/jqvmap.min.css')}}" rel="stylesheet">
-        <link href="{{asset('/dashboard/vendor/datatables/css/jquery.dataTables.min.css')}}" rel="stylesheet">
-        <link href="{{asset('/dashboard/css/style.css')}}" rel="stylesheet">
-        <link href="{{asset('/dashboard/css/custom.css')}}" rel="stylesheet">
+        <link rel="stylesheet" href="{{asset('/public/dashboard/vendor/owl-carousel/css/owl.carousel.min.css')}}">
+        <link rel="stylesheet" href="{{asset('/public/dashboard/vendor/owl-carousel/css/owl.theme.default.min.css')}}">
+        <link href="{{asset('/public/dashboard/vendor/jqvmap/css/jqvmap.min.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/vendor/datatables/css/jquery.dataTables.min.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/css/style.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/css/custom.css')}}" rel="stylesheet">
     @endif
     {{--  fontawesome  --}}
-    <link href="{{asset('/dashboard/icons/fontawesome-free-5.15.4-web/css/all.css')}}" rel="stylesheet">
+    <link href="{{asset('/public/dashboard/icons/fontawesome-free-5.15.4-web/css/all.css')}}" rel="stylesheet">
     {{-- toastr   --}}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
@@ -43,7 +43,7 @@
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
 
-    <link href="{{asset('/dashboard/css/yearpicker.css')}}" rel="stylesheet">
+    <link href="{{asset('/public/dashboard/css/yearpicker.css')}}" rel="stylesheet">
     <link rel="stylesheet" href="{{asset('dashboard/vendor/pickadate/themes/default.css')}}">
     <link rel="stylesheet" href="{{asset('dashboard/vendor/pickadate/themes/default.date.css')}}">
 
@@ -108,9 +108,9 @@
 
 <!-- Scripts -->
 <!-- Required vendors -->
-<script src="{{asset('/dashboard/vendor/global/global.min.js')}}"></script>
-<script src="{{asset('/dashboard/js/quixnav-init.js')}}"></script>
-<script src="{{asset('/dashboard/js/custom.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/global/global.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/js/quixnav-init.js')}}"></script>
+<script src="{{asset('/public/dashboard/js/custom.min.js')}}"></script>
 
 {{-- lightbox --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ekko-lightbox/5.3.0/ekko-lightbox.js"></script>
@@ -125,38 +125,38 @@
 </script>
 
 <!-- Vectormap -->
-<script src="{{asset('/dashboard/vendor/raphael/raphael.min.js')}}"></script>
-<script src="{{asset('/dashboard/vendor/morris/morris.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/raphael/raphael.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/morris/morris.min.js')}}"></script>
 
 
-<script src="{{asset('/dashboard/vendor/circle-progress/circle-progress.min.js')}}"></script>
-<script src="{{asset('/dashboard/vendor/chart.js/Chart.bundle.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/circle-progress/circle-progress.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/chart.js/Chart.bundle.min.js')}}"></script>
 
-<script src="{{asset('/dashboard/vendor/gaugeJS/dist/gauge.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/gaugeJS/dist/gauge.min.js')}}"></script>
 
 <!--  flot-chart js -->
-<script src="{{asset('/dashboard/vendor/flot/jquery.flot.js')}}"></script>
-<script src="{{asset('/dashboard/vendor/flot/jquery.flot.resize.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/flot/jquery.flot.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/flot/jquery.flot.resize.js')}}"></script>
 
 <!-- Owl Carousel -->
-<script src="{{asset('/dashboard/vendor/owl-carousel/js/owl.carousel.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/owl-carousel/js/owl.carousel.min.js')}}"></script>
 
 <!-- Counter Up -->
-<script src="{{asset('/dashboard/vendor/jqvmap/js/jquery.vmap.min.js')}}"></script>
-<script src="{{asset('/dashboard/vendor/jqvmap/js/jquery.vmap.usa.js')}}"></script>
-<script src="{{asset('/dashboard/vendor/jquery.counterup/jquery.counterup.min.js')}}"></script>
-<script src="{{asset('/dashboard/js/dashboard/dashboard-1.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/jqvmap/js/jquery.vmap.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/jqvmap/js/jquery.vmap.usa.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/jquery.counterup/jquery.counterup.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/js/dashboard/dashboard-1.js')}}"></script>
 
 <!-- Datatable -->
-<script src="{{asset('/dashboard/vendor/datatables/js/jquery.dataTables.min.js')}}"></script>
-<script src="{{asset('/dashboard/js/plugins-init/datatables.init.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/datatables/js/jquery.dataTables.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/js/plugins-init/datatables.init.js')}}"></script>
 
 {{-- custom Js --}}
-<script src="{{asset('/dashboard/js/custom/image-preview.js')}}"></script>
+<script src="{{asset('/public/dashboard/js/custom/image-preview.js')}}"></script>
 
 {{--Select 2--}}
-<script src="{{asset('/dashboard/vendor/select2/js/select2.full.min.js')}}"></script>
-<script src="{{asset('/dashboard/js/plugins-init/select2-init.js')}}"></script>
+<script src="{{asset('/public/dashboard/vendor/select2/js/select2.full.min.js')}}"></script>
+<script src="{{asset('/public/dashboard/js/plugins-init/select2-init.js')}}"></script>
 
 <!-- CkEditor js -->
 <script src="{{asset('dashboard/js/ckeditor/ckeditor.js')}}"></script>

@@ -7,13 +7,13 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Mawatry</title>
     <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="{{asset('/dashboard/images/favicon.png')}}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{asset('/public/dashboard/images/favicon.png')}}">
     <link href="{{asset('dashboard/css/style.css')}}" rel="stylesheet">
 
     @if(App::isLocale('ar'))
-        <link href="{{asset('/dashboard/css/style-ar.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/css/style-ar.css')}}" rel="stylesheet">
     @else
-        <link href="{{asset('/dashboard/css/style.css')}}" rel="stylesheet">
+        <link href="{{asset('/public/dashboard/css/style.css')}}" rel="stylesheet">
     @endif
 </head>
 

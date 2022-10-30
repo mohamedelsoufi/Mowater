@@ -19,6 +19,8 @@ class CreateTrafficClearingServiceUsesTable extends Migration
             $table->unsignedBigInteger('traffic_clearing_office_id');
             $table->float('fees',11,2)->nullable();
             $table->float('price',11,2)->nullable();
+            $table->float('discount',11,2)->nullable();
+            $table->enum('discount_type',['percentage','amount'])->nullable();
             $table->timestamps();
         });
     }

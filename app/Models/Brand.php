@@ -43,13 +43,7 @@ class Brand extends Model
     }
     //relationship end
 
-
-    public function getActive()
-    {
-        return $this->active == 1 ? __('words.active') : __('words.inactive');
-    }
-
-    // scopes
+    // scopes start
     public function scopeActive($query)
     {
         return $query->where('active', 1);
@@ -73,10 +67,22 @@ class Brand extends Model
             });
         });;
     }
+    // scopes end
 
+    // accessors & Mutator start
     public function getLogoAttribute($val)
     {
         return asset('uploads') . '/' . $val;
     }
 
+    public function getActive()
+    {
+        return $this->active == 1 ? __('words.active') : __('words.inactive');
+    }
+
+    public function setNameEnAttribute($val)
+    {
+        $this->attributes['name_en'] = ucwords($val);
+    }
+    // accessors & Mutator end
 }

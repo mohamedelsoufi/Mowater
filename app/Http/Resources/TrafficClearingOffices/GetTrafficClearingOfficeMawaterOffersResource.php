@@ -11,10 +11,10 @@ class GetTrafficClearingOfficeMawaterOffersResource extends JsonResource
 
         return [
             "id" => $this->id,
+            "traffic_office_id" => $this->traffic_clearing_office_id,
+            "traffic_office" => $this->traffic_office->name,
             "traffic_clearing_service_id" => $this->traffic_clearing_service_id,
-            "service" => new GetServicesResource($this->traffic_service),
-            "traffic_clearing_office_id" => $this->traffic_clearing_office_id,
-            "traffic_clearing_office" =>new  ShowTrafficClearingOfficeResource($this->traffic_office),
+            "traffic_clearing_service" =>$this->traffic_service->name,
             "fees" => $this->fees,
             "price" => $this->price,
             "card_discount_value" => $this->card_discount_value,

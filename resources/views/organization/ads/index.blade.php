@@ -1,95 +1,121 @@
 @extends('organization.layouts.app')
-@section('title','Mawatery | ads')
+@section('title', __('words.show_ads'))
 @section('content')
-    <div class="content-body">
-        <div class="container-fluid">
-            <div class="row page-titles mx-0">
-                <div class="col-sm-6 p-md-0">
-                    <div class="welcome-text">
-                        <h4>{{__('words.ads')}} <small class="text-secondary">({{ $ads->count() }}
-                                )</small></h4>
+
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>{{__('words.dashboard') .' '. $record->name}}</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb {{app()->getLocale() == 'ar' ? 'float-sm-left' :  'float-sm-right'}}">
+                            <li class="breadcrumb-item"><a
+                                    href="{{route('organization.home')}}">{{__('words.home')}}</a></li>
+                            <li class="breadcrumb-item active">{{__('words.show_ads')}}</li>
+                        </ol>
                     </div>
                 </div>
-                <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{route('organization.home')}}">{{__('words.home')}}</a>
-                        </li>
-                        <li class="breadcrumb-item active">{{__('words.ads')}}</li>
-                    </ol>
-                </div>
-                @include('organization.includes.alerts.success')
-                @include('organization.includes.alerts.errors')
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        {{-- create modal start --}}
-                        <div class="card-header">
-                            <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#storeAd">
-                                {{__('words.create')}}
-                            </button>
-                            @include('organization.ads.create')
-                        </div>
-                        {{-- create modal end --}}
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="example" class="display" style="min-width: 845px">
+            </div><!-- /.container-fluid -->
+        </section>
+        @include('organization.includes.alerts.success')
+        @include('organization.includes.alerts.errors')
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">{{__('words.show_ads')}}</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="example1" class="table table-bordered table-striped text-center">
                                     <thead>
-                                    <tr class="text-center">
-                                        <th>{{__('words.images')}}</th>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>{{__('words.image_s')}}</th>
                                         <th>{{__('words.title')}}</th>
-                                        <th>{{__('words.price')}} ({{__('words.bhd')}})</th>
-                                        <th>{{__('words.negotiable')}}</th>
-                                        <th>{{__('words.country')}}</th>
-                                        <th>{{__('words.city')}}</th>
-                                        <th>{{__('words.area')}}</th>
+                                        <th>{{__('words.type')}}</th>
+                                        <th>{{__('words.priority')}}</th>
+                                        <th>{{__('words.price')}}</th>
+                                        <th>{{__('words.status')}}</th>
+                                        <th>{{__('words.activity')}}</th>
+                                        <th>{{__('words.created_by')}}</th>
+                                        <th>{{__('words.created_at')}}</th>
+                                        <th>{{__('words.updated_at')}}</th>
                                         <th>{{__('words.actions')}}</th>
                                     </tr>
                                     </thead>
-                                    <tbody id="display_data">
-                                    @foreach($ads as $ad)
-                                        <tr class="text-center">
+                                    <tbody>
+                                    @foreach($ads as $key => $ad)
+                                        <tr>
+                                            <td>{{$key+1}}</td>
                                             <td>
-                                                @if(!$ad->files)
+                                                @if(!$ad->image)
                                                     <a href="{{asset('uploads/default_image.png')}}"
-                                                       data-toggle="lightbox">
-                                                        <img class="slider_image"
-                                                             src="{{asset('uploads/default_image.png')}}" alt="">
+                                                       data-toggle="lightbox" data-title="{{$ad->title}}"
+                                                       data-gallery="gallery">
+                                                        <img class="index_image"
+                                                             src="{{asset('uploads/default_image.png')}}" alt="logo">
                                                     </a>
                                                 @else
-                                                    <a href="{{$ad->one_image}}"
-                                                       data-toggle="lightbox">
-                                                        <img class="slider_image"
-                                                             src="{{$ad->one_image}}"
+                                                    <a href="{{$ad->image}}"
+                                                       data-toggle="lightbox" data-title="{{$ad->title}}"
+                                                       data-gallery="gallery">
+                                                        <img class="index_image"
+                                                             src="{{$ad->image}}"
                                                              onerror="this.src='{{asset('uploads/default_image.png')}}'"
-                                                             alt="">
+                                                             alt="logo">
                                                     </a>
                                                 @endif
                                             </td>
                                             <td>{{$ad->title}}</td>
-                                            <td>{{$ad->price?$ad->price:"--"}}</td>
-                                            <th>{{$ad->getNegotiable()}}</th>
-                                            <td>{{\App\Models\Country::find($ad->country_id)->name}}</td>
-                                            <td>{{\App\Models\City::find($ad->city_id)->name}}</td>
-                                            <td>{{\App\Models\Area::find($ad->area_id)->name}}</td>
                                             <td>
-                                                {{--                                                <button type="button" id="show_ad"--}}
-                                                {{--                                                        class="btn btn-outline-info"--}}
-                                                {{--                                                        data-toggle="modal"--}}
-                                                {{--                                                        data-target="#editAd"--}}
-                                                {{--                                                        onclick="get_ad_data({{$ad->id}})">--}}
-                                                {{--                                                    {{__('words.show')}}--}}
-                                                {{--                                                </button>--}}
-                                                <a href="{{route('organization.ads.show',$ad->id)}}"
-                                                   class="btn btn-outline-info"> {{__('words.show')}}</a>
-                                                <button type="button" class="btn btn-outline-danger"
-                                                        data-toggle="modal"
-                                                        data-target="#ModalDelete"
-                                                        onclick="get_ad_data({{$ad->id}})">
-                                                    {{__('words.delete')}}
-                                                </button>
+                                                @if($ad->getRawOriginal('link') != null)
+                                                    <a href="{{$ad->link}}"
+                                                       target="_blank">{{__('words.external_ad_link')}}</a>
+                                                @else
+                                                    {{__('words.ad_in_app')}}
+                                                @endif
+                                            </td>
+                                            <td>{{$ad->adType->name}}</td>
+                                            <td>{{$ad->price}}</td>
+                                            <td>{{$ad->getStatus()}}</td>
+                                            <td>{{$ad->getActive()}}</td>
+                                            <td>{{$ad->created_by}}</td>
+                                            <td>{{createdAtFormat($ad->created_at)}}</td>
+                                            <td>{{createdAtFormat($ad->created_at) == updatedAtFormat($ad->updated_at) ? '--' : updatedAtFormat($ad->updated_at)}}</td>
+                                            <td class="action">
+                                                @if(auth('web')->user()->hasPermission(['read-org_ads-' . $record->name_en]))
+                                                    <a href="{{route('organization.ads.show',$ad->id)}}"
+                                                       class="btn btn-outline-info" data-toggle="tooltip"
+                                                       title="{{__('words.show')}}">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                @endif
+
+                                                @if($ad->status != 'approved')
+                                                    @if(auth('web')->user()->hasPermission(['update-org_ads-' . $record->name_en]))
+                                                        <a href="{{route('organization.ads.edit',$ad->id)}}"
+                                                           data-toggle="tooltip"
+                                                           title="{{__('words.edit')}}"
+                                                           class="btn btn-outline-warning"> <i
+                                                                class="fas fa-pen"></i></a>
+                                                    @endif
+                                                @endif
+
+                                                @if(auth('web')->user()->hasPermission(['delete-org_ads-' . $record->name_en]))
+                                                    <a href="" class="btn btn-outline-danger"
+                                                       data-toggle="modal"
+                                                       data-target="#ModalDelete{{$ad->id}}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                    @include('organization.ads.deleteModal')
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -97,80 +123,17 @@
 
                                 </table>
                             </div>
+                            <!-- /.card-body -->
                         </div>
+                        <!-- /.card -->
                     </div>
+                    <!-- /.col -->
                 </div>
+                <!-- /.row -->
             </div>
-        </div>
+            <!-- /.container-fluid -->
+        </section>
+
     </div>
-    {{--    @include('organization.ads.update')--}}
-    @include('organization.ads.delete')
-@endsection
-
-@section('scripts')
-    @include('organization.includes.change_files')
-    <script type="text/javascript">
-
-        @if(count($errors) > 0 && !$errors->has('update_modal'))
-        $('#storeAd').modal('show');
-
-        @elseif($errors->has('update_modal'))
-        $('#editAd').modal('show');
-        @foreach ($errors->get('update_modal') as $error)
-        {{--console.log({{ $error }});--}}
-        get_ad_data({{$error}});
-
-        @endforeach
-        @endif
-
-        function get_ad_data(id) {
-            var url = "{{route('organization.ads.edit' , ':id')}}";
-            url = url.replace(':id', id);
-            $.ajax({
-                type: "Get",
-                url: url,
-                datatype: 'JSON',
-                success: function (data) {
-                    console.log(data);
-                    if (data.status == true) {
-                        // $('#name_en').val(data.data.show_product.name_en);
-                        // $('#name_ar').val(data.data.show_product.name_ar);
-                        //
-                        // CKEDITOR.instances.description_ar.setData(data.data.show_product.description_ar);
-                        // CKEDITOR.instances.description_en.setData(data.data.show_product.description_en);
-                        // // $('#brand_id').val(data.data.show_agency.brand_id);
-                        // $('#price').val(data.data.show_product.price);
-                        // $('#warranty').val(data.data.show_product.warranty_value);
-                        // $('#type').val(data.data.show_product.type);
-                        // $('#is_new').val(data.data.show_product.is_new);
-
-                        // console.log $('#images').attr("src", data.data.show_product.one_image);
-                        //
-                        //  if (data.data.show_service.active == 1) {
-                        //      $('#active').prop('checked', true);
-                        //  } else {
-                        //      $('#active').prop('checked', false);
-                        //  }
-
-
-                        // console.log($('#product_id').val(data.data.show_product.id));
-
-                        let destroy = "{{route('organization.ads.destroy' , ':id')}}";
-                        destroy = destroy.replace(':id', data.data.show_ad.id);
-                        // $('#update_form').attr('action', update);
-                        $('#delete_form').attr('action', destroy);
-
-                        $('#text_message').text(data.data.show_ad.name);
-                    }
-                },
-                error: function (reject) {
-                    alert(reject);
-                }
-            });
-        }
-
-
-    </script>
 
 @endsection
-

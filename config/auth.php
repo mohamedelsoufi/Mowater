@@ -78,11 +78,6 @@ return [
             'model' => App\Models\OrganizationUser::class,
         ],
 
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,

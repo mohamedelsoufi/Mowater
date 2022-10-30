@@ -11,27 +11,27 @@ class Area extends Model
     use HasFactory;
     protected $table = 'areas';
     public $timestamps = true;
-    protected $fillable = array('name_en', 'name_ar', 'city_id');
+    protected $fillable = array('name_en', 'name_ar', 'city_id', 'created_by');
     protected $hidden = ['created_at', 'updated_at','name_en', 'name_ar'];
     protected $appends = ['name'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar')
             return $this->name_ar;
         return $this->name_en;
     }
-    //// appends attributes end //////
+    // appends attributes end
 
-    //relationship start
+    // relationship start
     public function city()
     {
         return $this->belongsTo(City::class);
     }
-    //relationship end
+    // relationship end
 
-    //scopes
+    // scopes start
     public function scopeSelection($query){
         return $query->select('id','name_en', 'name_ar','city_id');
     }
@@ -42,4 +42,12 @@ class Area extends Model
             return $q->where('city_id', request()->city_id);
         });
     }
+    // scopes end
+
+    // accessors & Mutator start
+    public function setNameEnAttribute($val)
+    {
+        $this->attributes['name_en'] = ucwords($val);
+    }
+    // accessors & Mutator end
 }

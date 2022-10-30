@@ -14,7 +14,7 @@ class CreateSectionsTable extends Migration {
             $table->string('name_ar');
             $table->string('ref_name');
             $table->bigInteger('section_id')->unsigned()->nullable();
-            $table->enum('reservation_cost_type', array('amount', 'discount'))->nullable();
+            $table->enum('reservation_cost_type', array('amount', 'percentage'))->nullable();
             $table->float('reservation_cost',11,2)->nullable();
             $table->timestamps();
         });

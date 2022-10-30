@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
@@ -11,18 +12,18 @@ class Category extends Model
     use HasFactory;
     protected $table = 'categories';
     public $timestamps = true;
-    protected $fillable = array('id', 'name_en', 'name_ar', 'section_id','ref_name');
+    protected $fillable = array('id', 'name_en', 'name_ar', 'section_id','ref_name','created_by');
     protected $hidden = ['name_en', 'name_ar', 'created_at', 'updated_at'];
     protected $appends = ['name'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar')
             return $this->name_ar;
         return $this->name_en;
     }
-    //// appends attributes end //////
+    // appends attributes end
 
     //relationship start
     public function delivery_men()
@@ -55,5 +56,21 @@ class Category extends Model
     }
     //relationship end
 
+    // accessors & Mutator start
+    public function setNameEnAttribute($val)
+    {
+        $this->attributes['name_en'] = ucwords($val);
+    }
+    // accessors & Mutator end
 
+    // Scopes start
+    public function scopeSearch($query)
+    {
+
+        $query->when(request()->search, function ($q) {
+            return $q->where('name_ar', 'like', '%' . request()->search . '%')
+                ->orWhere('name_en', 'like', '%' . request()->search . '%');
+        });
+    }
+    // Scopes end
 }

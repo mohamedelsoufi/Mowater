@@ -11,6 +11,7 @@ use App\Http\Resources\SpecialNumbers\AllSpecialNumbersResource;
 use App\Http\Resources\SpecialNumbers\GetSpecialNumberOrganizationsResource;
 use App\Http\Resources\SpecialNumbers\GetSpecialNumberReservationResource;
 use App\Http\Resources\SpecialNumbers\ShowSpecialNumbersResource;
+use App\Http\Resources\SpecialNumbers\SpecialNumberOrgMowaterOffersResource;
 use App\Http\Resources\SpecialNumbers\SpecialNumberOrgOffersResource;
 use App\Models\Branch;
 use App\Models\Category;
@@ -86,7 +87,7 @@ class SpecialNumberController extends Controller
     public function getCategories()
     {
         try {
-            $categories = Category::with('sub_categories')->where('section_id', 4)->paginate(PAGINATION_COUNT);
+            $categories = Category::with('sub_categories')->where('section_id', 4)->search()->paginate(PAGINATION_COUNT);
             if (empty($categories))
                 return responseJson(0, __('message.no_result'));
             return responseJson(1, 'success', AllSpecialNumberCategoriesResource::collection($categories)->response()->getData(true));
@@ -181,35 +182,47 @@ class SpecialNumberController extends Controller
         }
     }
 
-    public function getOffers(ShowSpecialNumberRequest $request)
+    public function getMowaterOffers(ShowSpecialNumberRequest $request)
     {
         $special_number_org = SpecialNumberOrganization::find($request->id);
         $special_numbers = $special_number_org->special_numbers()->whereHas('offers')->paginate(PAGINATION_COUNT);
         if (empty($special_numbers))
             return responseJson(0, __('message.no_result'));
-        foreach ($special_numbers as $special_number) {
-            foreach ($special_number->offers as $offer) {
-                $discount_type = $offer->discount_type;
-                $percentage_value = $offer->discount_value / 100;
-                if ($discount_type == 'percentage') {
-                    $price_after_discount = $special_number->price - $percentage_value;
-                    $special_number->mawater_discount_type = $offer->discount_value . '%';
-                    $special_number->price_after_mawater_discount = $price_after_discount . ' BHD';
-                } else {
-//                    $price_after_discount = $special_number->price - $offer->discount_value;
-//                    $special_number->mawater_discount_type = $offer->discount_value . ' BHD';
-//                    $special_number->price_after_mawater_discount = $price_after_discount . ' BHD';
-                    $price_after_discount = $special_number->price - $offer->discount_value;
-                    $special_number->card_discount_value = $offer->discount_value . ' BHD';
-                    $special_number->card_price_after_discount = $price_after_discount . ' BHD';
-                    $special_number->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                }
-                $special_number->notes = $offer->notes;
-                $special_number->makeHidden('offers');
+
+        GeneralMowaterCard($special_numbers);
+
+        return responseJson(1, 'success', SpecialNumberOrgMowaterOffersResource::collection($special_numbers)->response()->getData(true));
+
+    }
+
+    public function getOffers(ShowSpecialNumberRequest $request)
+    {
+        try {
+            $special_number_org = SpecialNumberOrganization::active()->find($request->id);
+
+            // items not in mowater card and have offers start
+            $special_numbers = $special_number_org->special_numbers()->where('discount_type', '!=', '')->latest('id')->get();
+            if (isset($special_numbers))
+                $special_numbers->each(function ($item) {
+                    $item->is_mowater_card = false;
+                });
+            // items not in mowater card and have offers end
+
+            // items have mowater card start
+            $mowater_special_number = $special_number_org->special_numbers()->wherehas('offers')->latest('id')->get();
+
+            if (isset($mowater_special_number)) {
+                GeneralOffers($mowater_special_number);
             }
+            // items have mowater card end
+
+            //merge all results in one array
+            $merged =collect(SpecialNumberOrgOffersResource::collection($special_numbers))
+                ->merge(SpecialNumberOrgOffersResource::collection($mowater_special_number))->paginate(PAGINATION_COUNT);
+
+            return responseJson(1, 'success', $merged);
+        } catch (\Exception $e) {
+            return responseJson(0, 'error', $e->getMessage());
         }
-
-        return responseJson(1, 'success', SpecialNumberOrgOffersResource::collection($special_numbers)->response()->getData(true));
-
     }
 }

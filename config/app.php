@@ -13,7 +13,7 @@ return [
     |
     */
     'FIREBASE_API_KEY' => 'AAAAmT6miqM:APA91bE3R1tR5NahS0iBV1BCErE3z73kqzuB0SFlLpFQlsl4sv3Nu8VHiI7O5ql55YMWpE25rbQD6IgyieZzXmEW_4CVkjTh_9cJYyAEveyIQFXn17C5sX4ZDMsL6IXC6qsVGl48QcD9',
-    'name' => env('APP_NAME', 'Mawatery'),
+    'name' => env('APP_NAME', 'Mowater'),
 
     /*
     |--------------------------------------------------------------------------

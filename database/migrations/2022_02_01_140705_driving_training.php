@@ -25,6 +25,8 @@ class DrivingTraining extends Migration
             $table->unsignedBigInteger('city_id');
             $table->unsignedBigInteger('area_id');
             $table->unsignedBigInteger('hour_price')->nullable();
+            $table->enum('discount_type', array('percentage', 'amount'))->nullable();
+            $table->float('discount', 8,2)->nullable();
             $table->text('notes')->nullable();
             $table->unsignedBigInteger('brand_id')->nullable();
             $table->unsignedBigInteger('car_model_id')->nullable();
@@ -37,6 +39,7 @@ class DrivingTraining extends Migration
             $table->boolean('active_number_of_views')->default(1)->nullable();
             $table->boolean('active')->default(1);
             $table->boolean('available')->default(1);
+            $table->string('created_by')->nullable()->default('system@app.com');
             $table->timestamps();
 
             $table->foreign('brand_id')->on('brands')->references('id')->onUpdate('set null')->onDelete('set null');

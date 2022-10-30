@@ -6,36 +6,40 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class SpecialNumberOrgOffersResource extends JsonResource
 {
-
     public function toArray($request)
     {
-        return [
-            "id" => $this->id,
-            "category_id" => $this->category_id,
-            "sub_category_id" => $this->sub_category_id,
-            "number" => $this->number,
-            "is_special" => $this->is_special,
-            "size" => $this->size,
-            "transfer_type" => $this->transfer_type,
-            "price" => $this->price,
-            "discount" => $this->discount,
-            "price_after_discount" => $this->price_after_discount,
-            "price_include_transfer" => $this->price_include_transfer,
-            "card_discount_value"=>$this-> card_discount_value,
-            "card_number_of_uses_times"=>$this-> card_number_of_uses_times,
-            "user_id" => $this->user_id,
-            "special_number_organization_id" => $this->special_number_organization_id,
-            'rating' => $this->rating,
-            'rating_count' => $this->rating_count,
-            'is_reviewed' => $this->is_reviewed,
-            "is_favorite" => $this->is_favorite,
-            "favorites_count" => $this->favorites_count,
-            "number_of_views" => $this->number_of_views,
-            "active_number_of_views" => $this->active_number_of_views,
-            "availability" => $this->availability,
-            "mawater_discount_type" => $this->mawater_discount_type,
-            "price_after_mawater_discount" => $this->price_after_mawater_discount,
-            "notes" => $this->notes,
-        ];
+        $data = [];
+
+        $data["id"] = $this->id;
+        $data["category_id"] = $this->category_id;
+        $data["sub_category_id"] = $this->sub_category_id;
+        $data["number"] = $this->number;
+        $data["is_special"] = $this->is_special;
+        $data["size"] = $this->size;
+        $data["transfer_type"] = $this->transfer_type;
+        $data["price"] = $this->price;
+        $data["price_include_transfer"] = $this->price_include_transfer;
+        $data["is_mowater_card"] = $this->is_mowater_card;
+        if ($this->is_mowater_card === true){
+            $data["card_discount_value"] = $this->card_discount_value;
+            $data["card_price_after_discount"] = $this->card_price_after_discount;
+            $data["card_number_of_uses_times"] = $this->card_number_of_uses_times;
+            $data["notes"] = $this->notes;
+        }else{
+            $data["discount_type"] = $this->discount_type;
+            $data["discount"] = $this->discount;
+            $data["price_after_discount"] = $this->price_after_discount;
+        }
+        $data["special_number_organization_id"] = $this->special_number_organization_id ?  $this->special_number_organization_id : '';
+        $data["special_number_organization"] = $this->special_number_organization ? $this->special_number_organization->name : '';
+        $data['rating'] = $this->rating;
+        $data['rating_count'] = $this->rating_count;
+        $data['is_reviewed'] = $this->is_reviewed;
+        $data["is_favorite"] = $this->is_favorite;
+        $data["favorites_count"] = $this->favorites_count;
+        $data["number_of_views"] = $this->number_of_views;
+        $data["active_number_of_views"] = $this->active_number_of_views;
+        $data["availability"] = $this->availability;
+        return $data;
     }
 }

@@ -1,49 +1,51 @@
 @extends('organization.layouts.app')
-@section('title','Mawatery | Services')
+@section('title', __('words.new_service'))
 @section('content')
-    <div class="content-body">
-        <div class="container-fluid">
-            <div class="row page-titles mx-0">
-                <div class="col-sm-6 p-md-0">
-                    <div class="welcome-text">
-                        <h4>{{__('words.services')}}</h4>
+
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>{{__('words.dashboard') .' '. $record->name}}</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb {{app()->getLocale() == 'ar' ? 'float-sm-left' :  'float-sm-right'}}">
+                            <li class="breadcrumb-item"><a
+                                    href="{{route('organization.home')}}">{{__('words.home')}}</a></li>
+                            <li class="breadcrumb-item"><a
+                                    href="{{route('organization.services.index')}}">{{__('words.show_services')}}</a>
+                            </li>
+
+                            <li class="breadcrumb-item active">{{__('words.new_service')}}</li>
+                        </ol>
                     </div>
                 </div>
-                <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{route('organization.home')}}">{{__('words.home')}}</a>
-                        </li>
-                        <li class="breadcrumb-item active">{{__('words.services')}}</li>
-                    </ol>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        {{-- create modal start --}}
-                        <div class="card-header">
-                            <div class="col-sm-6 p-md-0">
-                                <div class="welcome-text">
-                                    <h4>{{__('words.new_service')}}</h4>
-                                </div>
+            </div><!-- /.container-fluid -->
+        </section>
+        @include('organization.includes.alerts.success')
+        @include('organization.includes.alerts.errors')
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+
+                        <div class="card card-danger">
+                            <div class="card-header">
+                                <h3 class="card-title">{{__('words.new_service')}}</h3>
                             </div>
-                        </div>
-                        @include('organization.includes.alerts.success')
-                        @include('organization.includes.alerts.errors')
-                        <form method="POST" action="{{route('organization.services.store')}}" autocomplete="off"
-                              enctype="multipart/form-data">
-                            @csrf
-                            @method('post')
-                            <div class="modal-body">
+                            <form action="{{route('organization.services.store')}}" method="POST" autocomplete="off"
+                                  enctype="multipart/form-data">
                                 <div class="card-body">
+                                    @csrf
                                     <div class="basic-form">
-                                        <div class="form-row">
+                                        <div class="form-row mb-3">
                                             <div class="form-group col-md-6">
                                                 <label>{{__('words.name_ar')}}</label>
-                                                <input type="text" name="name_ar"
+                                                <input type="text" name="name_ar" dir="rtl"
                                                        class="form-control @error('name_ar') is-invalid @enderror"
-                                                       value="{{ old('name_ar') }}"
-                                                       placeholder="{{__('words.name_ar')}}">
+                                                       value="{{ old('name_ar') }}" placeholder="{{__('words.name_ar')}}">
                                                 @error('name_ar')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
@@ -53,10 +55,9 @@
 
                                             <div class="form-group col-md-6">
                                                 <label>{{__('words.name_en')}}</label>
-                                                <input type="text" name="name_en"
+                                                <input type="text" name="name_en" dir="ltr"
                                                        class="form-control @error('name_en') is-invalid @enderror"
-                                                       value="{{ old('name_en') }}"
-                                                       placeholder="{{__('words.name_en')}}">
+                                                       value="{{ old('name_en') }}" placeholder="{{__('words.name_en')}}">
 
                                                 @error('name_en')
                                                 <span class="invalid-feedback" role="alert">
@@ -66,60 +67,59 @@
                                             </div>
                                         </div>
 
-                                        <div class="form-row">
-                                            <div class="form-group col-md-12">
+                                        <div class="form-row mb-3">
+                                            <div class="form-group col-md-6">
                                                 <label>{{__('words.description_ar')}}</label>
-                                                <textarea name="description_ar"
-                                                          class="form-control ckeditor @error('description_ar') is-invalid @enderror">{{ old('description_ar') }}</textarea>
+                                                <textarea name="description_ar" dir="rtl"
+                                                          class="form-control @error('description_ar') is-invalid @enderror">{{ old('description_ar') }}</textarea>
 
                                                 @error('description_ar')
                                                 <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                                @enderror
+                                            </div>
+
+                                            <div class="form-group col-md-6">
+                                                <label>{{__('words.description_en')}}</label>
+                                                <textarea name="description_en" dir="ltr"
+                                                          class="form-control @error('description_en') is-invalid @enderror">{{ old('description_en') }}</textarea>
+
+                                                @error('description_en')
+                                                <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $message }}</strong>
+                                            </span>
                                                 @enderror
                                             </div>
                                         </div>
 
-                                        <div class="form-row">
-                                            <div class="form-group col-md-12">
-                                                <label>{{__('words.description_en')}}</label>
-                                                <textarea name="description_en"
-                                                          class="form-control ckeditor @error('description_en') is-invalid @enderror">{{ old('description_en') }}</textarea>
-
-                                                @error('description_en')
+                                        <div class="form-row mb-3">
+                                            <div class="form-group col-md-4">
+                                                <label>{{__('words.location_required')}}</label>
+                                                <select name="location_required"
+                                                        class="form-control @error('location_required') is-invalid @enderror">
+                                                    <option
+                                                        value="1" {{old('location_required') == "1" ? "selected" : ""}}>{{__('words.required')}}
+                                                    </option>
+                                                    <option
+                                                        value="0" {{old('location_required') == "0" ? "selected" : ""}}>{{__('words.not_required')}}
+                                                    </option>
+                                                </select>
+                                                @error('location_required')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
                                                 @enderror
                                             </div>
-                                        </div>
 
-                                        <div class="form-group col-md-12">
-                                            <label>{{__('words.images')}}</label>
-                                            <input type="file" name="images[]" id="files"
-                                                   class="form-control image @error('images') is-invalid @enderror"
-                                                   placeholder="{{__('words.images')}}" multiple>
-                                            @error('images')
-                                            <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                        </div>
-
-                                        <div class="form-row">
-                                            <output id='result' class="row"/>
-                                        </div>
-
-                                        <div class="form-row">
                                             <div class="form-group col-md-4">
                                                 <label>{{__('words.category')}}</label>
-                                                <select name="category_id"
-                                                        class="form-control category_id @error('category_id') is-invalid @enderror">
+                                                <select name="category_id" id="category_id"
+                                                        class="form-control select2 select2-select2 select2-primary category_id @error('category_id') is-invalid @enderror">
                                                     <option value="" selected>{{__('words.choose')}}</option>
                                                     @foreach($categories as $category)
-                                                        <option
-                                                            {{ old('category_id') == $category->id ? "selected" : "" }}
-                                                            value="{{$category->id}}">{{$category->name}}</option>
+                                                        <option value="{{$category->id}}"
+                                                            {{old('category_id') == $category->id ? "selected" : ""}}>{{$category->name}}</option>
                                                     @endforeach
                                                 </select>
                                                 @error('category_id')
@@ -130,117 +130,184 @@
                                             </div>
 
                                             <div class="form-group col-md-4">
+                                                <label>{{__('words.sub_category')}}</label>
+                                                <select name="sub_category_id" id="sub_category_id"
+                                                        class="form-control sub_category_id @error('sub_category_id') is-invalid @enderror">
+                                                    <option value="">{{__('words.choose')}}</option>
+                                                    @if(old('category_id'))
+                                                        @foreach(\App\Models\SubCategory::where('category_id',old('category_id'))->get() as $model)
+                                                            @if (Input::old('sub_category_id') == $model->id)
+
+                                                                <option value="{{ $model->id }}"
+                                                                        selected>{{ $model->name }}</option>
+                                                            @else
+                                                                <option value="{{ $model->id }}">{{ $model->name }}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    @endif
+                                                </select>
+                                                @error('sub_category_id')
+                                                <span class="invalid-feedback" role="alert">
+                                                     <strong>{{ $message }}</strong>
+                                                 </span>
+                                                @enderror
+                                            </div>
+
+                                        </div>
+
+                                        <div class="form-row mb-3">
+                                            <div class="form-group col-md-6">
+                                                <label>{{__('words.choose_images')}}</label>
+                                                <div class="input-group">
+                                                    <div class="custom-file">
+                                                        <input type="file" multiple
+                                                               class="custom-file-input images_files image @error('images[]') is-invalid @enderror"
+                                                               name="images[]"
+                                                               accept="image/*">
+                                                        <label class="custom-file-label"
+                                                               for="images">{{__('words.choose_image')}}</label>
+                                                    </div>
+                                                    @error('images[]')
+                                                    <span class="invalid-feedback d-block" role="alert">
+                                                            <strong>{{ $message }}</strong>
+                                                        </span>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-row mb-3">
+                                            <div class="form-group col-md-4">
                                                 <label>{{__('words.price')}}</label>
-                                                <input type="number" name="price" step="0.01" min="0"  value="{{old('price')}}"
+                                                <input type="number" name="price" step="0.01" min="0"
+                                                       value="{{old('price')}}"
                                                        class="form-control @error('price') is-invalid @enderror"
                                                        placeholder="{{__('words.price')}}">
+
                                                 @error('price')
                                                 <span class="invalid-feedback" role="alert">
-                                                                        <strong>{{ $message }}</strong>
-                                                                    </span>
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
                                                 @enderror
-
                                             </div>
-                                        </div>
 
-                                        <div class="form-row">
                                             <div class="form-group col-md-4">
-                                                <label>{{__('words.discount_availability')}}</label>
-                                                <select name="discount_availability" id="discount_availability"
-                                                        class="form-control @error('discount_availability') is-invalid @enderror">
+                                                <label>{{__('words.discount_type')}}</label>
+                                                <select name="discount_type"
+                                                        class="form-control @error('discount_type') is-invalid @enderror">
+                                                    <option value="">{{__('words.none')}}</option>
                                                     <option
-                                                        {{ old('discount_availability') == '0' ? "selected" : "" }} value="0">
-                                                        {{__('words.not_available_prop')}}
-                                                    </option>
+                                                        value="percentage" {{ old('discount_type') == 'percentage' ? "selected" : "" }}>{{__('words.percentage')}}</option>
                                                     <option
-                                                        {{ old('discount_availability') == '1' ? "selected" : "" }} value="1">
-                                                        {{__('words.available_prop')}}
-                                                    </option>
+                                                        value="amount" {{ old('discount_type') == 'amount' ? "selected" : "" }}>{{__('words.amount')}}</option>
+
                                                 </select>
-                                                @error('colors[]')
+                                                @error('discount_type')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
                                                 @enderror
                                             </div>
 
-                                            <div id="discount" class="col-md-8 form-row d-none">
-                                                <div class="form-group col-md-6">
-                                                    <label>{{__('words.discount_value')}}</label>
-                                                    <input type="number" name="discount" step="0.01" min="0"
-                                                           value="{{old('discount')}}"
-                                                           class="form-control @error('discount') is-invalid @enderror"
-                                                           placeholder="{{__('words.discount_value')}}">
-                                                    @error('discount')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
-                                                    @enderror
-                                                </div>
+                                            <div class="form-group col-md-4">
+                                                <label>{{__('words.discount_value')}}</label>
+                                                <input type="number" name="discount" step="0.01" min="1"
+                                                       value="{{old('discount')}}"
+                                                       class="form-control @error('discount') is-invalid @enderror"
+                                                       placeholder="{{__('words.discount_value')}}">
 
-                                                <div class="form-group col-md-6">
-                                                    <label>{{__('words.discount_type')}}</label>
-                                                    <select name="discount_type"
-                                                            class="form-control @error('discount_type') is-invalid @enderror">
-                                                        <option
-                                                            {{old('discount_type') == 'percentage' ? 'selected' : ''}}
-                                                            value="percentage">{{__('words.percentage')}}</option>
-                                                        <option
-                                                            {{old('discount_type') == 'amount' ? 'selected' : ''}}
-                                                            value="amount">{{__('words.amount')}}</option>
-                                                    </select>
-                                                    @error('discount_type')
-                                                    <span class="invalid-feedback" role="alert">
+                                                @error('discount')
+                                                <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
-                                                    @enderror
-                                                </div>
+                                                @enderror
                                             </div>
-
                                         </div>
 
+                                        <hr>
                                         <div class="form-row">
                                             <div class="form-group col-md-4">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" name="available" value="0"
-                                                           type="checkbox">
+                                                    <input class="form-check-input" name="active" value="1"
+                                                           {{old('active') ? "checked" : ""}} type="checkbox">
+                                                    <label class="form-check-label">
+                                                        {{__('words.activity')}}
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" name="available" value="1"
+                                                          {{old('available') ? "checked" : ""}} type="checkbox">
                                                     <label class="form-check-label">
                                                         {{__('words.availability')}}
                                                     </label>
                                                 </div>
                                             </div>
 
+                                            <div class="form-group col-md-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" name="active_number_of_views"
+                                                           value="1" {{old('active_number_of_views') ? "checked" : ""}} type="checkbox">
+                                                    <label class="form-check-label">
+                                                        {{__('words.active_number_of_views')}}
+                                                    </label>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-
                                 </div>
-                            </div>
-
-
-                            <div class="modal-footer">
-
-                                <a href="{{route('organization.services.index')}}"
-                                   class="btn btn-outline-danger">{{__('words.back')}}</a>
-                                <button type="submit"
-                                        class="btn btn-outline-primary">{{__('words.create')}}</button>
-                            </div>
-                        </form>
+                                <div class="card-footer">
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <button type="submit" class="btn btn-block btn-outline-success">
+                                                {{__('words.create')}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            <!-- /.card-body -->
+                        </div>
                     </div>
+                    <!-- /.col -->
                 </div>
+                <!-- /.row -->
             </div>
-        </div>
+            <!-- /.container-fluid -->
+        </section>
+
     </div>
+
 @endsection
 @section('scripts')
-    @include('organization.includes.change_files')
-    <script type="text/javascript">
-        $('#discount_availability').on('change', function () {
-            if ($(this).val() == '1') {
-                $('#discount').removeClass('d-none');
-            } else {
-                $('#discount').addClass('d-none');
-            }
+    <script>
+        $('#category_id').on('change', function () {
+            get_sub_category_data($(this).val());
         });
-    </script>
-@endsection
 
+        function get_sub_category_data(id) {
+            var url = "{{route('organization.products.sub_category' , ':id')}}";
+            url = url.replace(':id', id);
+            $.ajax({
+                type: "Get",
+                url: url,
+                datatype: 'JSON',
+                success: function (data) {
+                    if (data.status == true) {
+                        $('#sub_category_id').empty();
+                        data.data.sub_categories.forEach(function (sub_category) {
+                            var option = `<option value ="${sub_category.id}">${sub_category.name}</option>`;
+                            $('#sub_category_id').append(option);
+                        });
+
+                    }
+                },
+                error: function (reject) {
+                    alert("{{__('message.something_wrong')}}");
+                }
+            });
+        }
+    </script>
+    @endsection

@@ -1,372 +1,921 @@
-<div class="quixnav">
-    <div class="quixnav-scroll">
-        <ul class="metismenu" id="menu">
+<!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="{{route('organization.home')}}" class="brand-link">
+        <img src="{{asset('logo.png')}}" alt="Mowater Logo" class="brand-image img-circle elevation-3"
+             style="opacity: .8">
+        <span class="brand-text font-weight-light">{{__('words.mowater')}}</span>
+    </a>
 
-            {{-- Organizations routes start --}}
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar user panel (optional) -->
+        <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+            <div class="image">
+                <img src="{{asset('no-user.jpg')}}" class="img-circle elevation-2" alt="User Image">
+            </div>
+            <div class="info">
+                <a href="#"
+                   class="d-block">{{auth('web')->user()->user_name}}</a>
+            </div>
+        </div>
 
-            <li>
-                <a class="{{ request()->routeIs('organization.users.index') ? 'active' : '' }}"
-                   href="{{route('organization.users.index')}}" aria-expanded="false">
-                    <i class="fas fa-users"></i>
-                    <span class="nav-text">{{__('words.users')}}</span>
-                </a>
-            </li>
+        <!-- SidebarSearch Form -->
+        <div class="form-inline">
+            <div class="input-group" data-widget="sidebar-search">
+                <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+                <div class="input-group-append">
+                    <button class="btn btn-sidebar">
+                        <i class="fas fa-search fa-fw"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
 
-            <li>
-                <a class="{{ request()->routeIs('organization.organizations.index') ? 'active' : '' }}"
-                   href="{{route('organization.organizations.index')}}" aria-expanded="false">
-                    <i class="fas fa-eye"></i>
-                    <span class="nav-text">{{__('words.show_data')}}</span>
-                </a>
-            </li>
+    <?php
+    $user = auth()->guard('web')->user();
+    $model_type = $user->organizable_type;
+    $model_id = $user->organizable_id;
+    $model = new $model_type;
+    $orgData = $model->find($model_id);
+    ?>
 
-            {{-- Vehicle routes start --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'available_vehicles'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.available_vehicle.index') ? 'active' : '' }}"
-                       href="{{route('organization.available_vehicle.index')}}" aria-expanded="false">
-                        <i class="fas fa-car-side"></i>
-                        <span class="nav-text">{{__('words.available_vehicles')}}</span>
-                    </a>
-                </li>
-            @endif
-
-            {{-- Rental Office Cars routes start --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'rental_office_cars'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.rental_office_car.index') ? 'active' : '' }}"
-                       href="{{route('organization.rental_office_car.index')}}" aria-expanded="false">
-                        <i class="fas fa-car-side"></i>
-                        <span class="nav-text">{{__('words.rental_office_cars')}}</span>
-                    </a>
-                </li>
-            @endif
-
-            {{-- Rental Laws routes start --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'rental_laws'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.rental_law.index') ? 'active' : '' }}"
-                       href="{{route('organization.rental_law.index')}}" aria-expanded="false">
-                        <i class="fas fa-solid fa-gavel"></i>
-                        <span class="nav-text">{{__('words.rental_laws')}}</span>
-                    </a>
-                </li>
-            @endif
-
-            {{-- Laws routes start --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'laws'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.law.index') ? 'active' : '' }}"
-                       href="{{route('organization.law.index')}}" aria-expanded="false">
-                        <i class="fas fa-solid fa-gavel"></i>
-                        <span class="nav-text">{{__('words.laws')}}</span>
-                    </a>
-                </li>
-            @endif
-
-            {{-- Coverage Types routes start --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'coverage_types'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.coverage_type.index') ? 'active' : '' }}"
-                       href="{{route('organization.coverage_type.index')}}" aria-expanded="false">
-                        <i class="fas fa-solid fa-box-open"></i>
-                        <span class="nav-text">{{__('words.coverage_types')}}</span>
-                    </a>
-                </li>
-            @endif
-
-            {{-- Available Payment Methods --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'rental_laws'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.available_payment_method.index') ? 'active' : '' }}"
-                       href="{{route('organization.available_payment_method.index')}}" aria-expanded="false">
-                        <i class="fas fa-solid fa-money-bill"></i>
-                        <span class="nav-text">{{__('words.available_payment_methods')}}</span>
-                    </a>
-                </li>
-            @endif
-
-            {{-- Rental Reservations --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'rental_reservations'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.rental_reservation.index') ? 'active' : '' }}"
-                       href="{{route('organization.rental_reservation.index')}}" aria-expanded="false">
-                        <i class="fas fa-clipboard"></i>
-                        <span class="nav-text">{{__('words.rental_reservations')}}</span>
-                    </a>
-                </li>
-            @endif
-
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'available_vehicles'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.available_product.index') ? 'active' : '' }}"
-                       href="{{route('organization.available_product.index')}}" aria-expanded="false">
-                        <i class="fab fa-product-hunt"></i>
-                        <span class="nav-text">{{__('words.available_products')}}</span>
-                    </a>
-                </li>
-            @endif
-
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'available_vehicles'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.available_service.index') ? 'active' : '' }}"
-                       href="{{route('organization.available_service.index')}}" aria-expanded="false">
-                        <i class="fas fa-toolbox"></i>
-                        <span class="nav-text">{{__('words.available_services')}}</span>
-                    </a>
-                </li>
-            @endif
-
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'vehicles'))
-                <li>
-                    <a class="has-arrow" aria-expanded="false">
-                        <i class="fas fa-car-side"></i>
-                        <span class="nav-text">{{__('words.vehicles')}}</span>
-                    </a>
-                    <ul aria-expanded="false">
-                        <li>
-                            <a class="{{ request()->routeIs('organization.vehicles.index') ? 'active' : '' }}"
-                               href="{{route('organization.vehicles.index')}}" aria-expanded="false">
-                                <i class="fas fa-eye"></i>
-                                <span class="nav-text">{{__('words.show_vehicles')}}</span>
+    <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                {{-- Users details toggle start --}}
+                @if($orgData->getTable() == 'branches')
+                    @if(auth('web')->user()->hasPermission(['read-org_users-'. $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.users.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.users.*','organization.org-branches-users.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-users"></i>
+                                <p>
+                                    {{__('words.users')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
                             </a>
+                            <ul class="nav nav-treeview level">
+                                @if(auth('web')->user()->hasPermission('read-org_users-'. $orgData->name_en))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.users.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.users.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if(auth('web')->user()->hasPermission('create-org_users-'. $orgData->name_en))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.users.create')}}"
+                                           class="nav-link {{ request()->routeIs('organization.users.create') ? 'active' : '' }}">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <p>{{__('words.create')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
                         </li>
-
-                        <li>
-                            <a class="{{ request()->routeIs('organization.vehicles.create') ? 'active' : '' }}"
-                               href="{{route('organization.vehicles.create')}}" aria-expanded="false">
-                                <i class="fa fa-plus"></i>
-                                <span class="nav-text">{{__('words.new_vehicle')}}</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            @endif
-
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'products'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.products.index') ? 'active' : '' }}"
-                       href="{{route('organization.products.index')}}" aria-expanded="false">
-                        <i class="fab fa-product-hunt"></i>
-                        <span class="nav-text">{{__('words.products')}}</span>
-                    </a>
-                </li>
-            @endif
-
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && method_exists( auth()->guard('web')->user()->organizable,'services'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.services.index') ? 'active' : '' }}"
-                       href="{{route('organization.services.index')}}" aria-expanded="false">
-                        <i class="fas fa-toolbox"></i>
-                        <span class="nav-text">{{__('words.services')}}</span>
-                    </a>
-                </li>
-            @endif
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && method_exists( auth()->guard('web')->user()->organizable,'ads'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.ads.index') ? 'active' : '' }}"
-                       href="{{route('organization.ads.index')}}" aria-expanded="false">
-                        <i class="fa fa-bullhorn" aria-hidden="true"></i>
-                        <span class="nav-text">{{__('words.ads')}}</span>
-                    </a>
-                </li>
-            @endif
-
-            {{-- <li>
-                <a class="{{ request()->routeIs('brands.index') ? 'active' : '' }}" href="{{route('brands.index')}}"
-                   aria-expanded="false">
-                    <i class="far fa-registered"></i>
-                    <span class="nav-text">{{__('words.reviews')}}</span>
-                </a>
-            </li> --}}
-            {{--//show the reservations of products--}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'reservations'))
-                <li>
-                    @if(auth()->guard('web')->user()->organizable_type=='\App\Models\DrivingTrainer')
-                        <a class="{{ request()->routeIs('organization.trainer_reservations.index') ? 'active' : '' }}"
-                           href="{{route('organization.trainer_reservations.index')}}" aria-expanded="false">
-                            <i class="la la-pencil-square-o"></i>
-                            <span class="nav-text">{{__('words.reservations')}}</span>
-                        </a>
-                    @elseif(auth()->guard('web')->user()->organizable_type=='App\Models\DeliveryMan')
-                        <a class="{{ request()->routeIs('organization.delivery_reservations.index') ? 'active' : '' }}"
-                           href="{{route('organization.delivery_reservations.index')}}" aria-expanded="false">
-                            <i class="la la-pencil-square-o"></i>
-                            <span class="nav-text">{{__('words.reservations')}}</span>
-                        </a>
-                    @else
-                        <a class="{{ request()->routeIs('organization.reservations.index') ? 'active' : '' }}"
-                           href="{{route('organization.reservations.index')}}" aria-expanded="false">
-                            <i class="la la-pencil-square-o"></i>
-                            <span class="nav-text">{{__('words.reservations')}}</span>
-                        </a>
                     @endif
+                @else
+                    @if(auth('web')->user()->hasPermission(['read-org_users-'. $orgData->name_en,'read-branch_users-'. $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.users.*','organization.org-branches-users.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.users.*','organization.org-branches-users.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-users"></i>
+                                <p>
+                                    {{__('words.users')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
 
-                </li>
-            @endif
-            {{--requests of the products--}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'products'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.products_requests.index') ? 'active' : '' }}"
-                       href="{{route('organization.products_requests.index')}}" aria-expanded="false">
-                        <i class="fas fa-envelope-open-text"></i>
-                        <span class="nav-text">{{__('words.products_requests')}}</span>
-                    </a>
-                </li>
-            @endif
+                            <ul class="nav nav-treeview level">
 
-            {{--requests of the insurance--}}
-                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->request_insurance_organizations)
-                <li>
-                    <a class="{{ request()->routeIs('organization.insurance_requests.index') ? 'active' : '' }}"
-                       href="{{route('organization.insurance_requests.index')}}" aria-expanded="false">
-                        <i class="fas fa-hand-holding"></i>
-                        <span class="nav-text">{{__('words.insurance_requests')}}</span>
-                    </a>
-                </li>
-            @endif
-            {{--            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->products)--}}
-            {{--                <a class="{{ request()->routeIs('organization.products_requests.index') ? 'active' : '' }}"--}}
-            {{--                   href="{{route('organization.products_requests.index')}}" aria-expanded="false">--}}
-            {{--                    <i class="fas fa-envelope-open-text"></i> <span--}}
-            {{--                        class="nav-text">{{__('words.products_requests')}}</span>--}}
-            {{--                </a>--}}
-            {{--                </li>--}}
-            {{--            @endif--}}
+                                {{-- Organization Users Start--}}
+                                @if(auth('web')->user()->hasPermission('read-org_users-'. $orgData->name_en))
+                                    <li class="nav-item {{ request()->routeIs('organization.users.*') ? 'menu-open' : '' }}">
+                                        <a href="#"
+                                           class="nav-link {{ request()->routeIs('organization.users.*') ? 'sub-menu active' : '' }}">
+                                            <i class="nav-icon fas fa-user"></i>
+                                            <p>
+                                                {{__('words.org_users')}}
+                                                <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                            </p>
+                                        </a>
+                                        <ul class="nav nav-treeview">
+                                            @if(auth('web')->user()->hasPermission('read-org_users-'. $orgData->name_en))
+                                                <li class="nav-item">
+                                                    <a href="{{route('organization.users.index')}}"
+                                                       class="nav-link {{ request()->routeIs('organization.users.index') ? 'active' : '' }}">
+                                                        <i class="far fa-eye nav-icon"></i>
+                                                        <p>{{__('words.show_all')}}</p>
+                                                    </a>
+                                                </li>
+                                            @endif
 
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && method_exists(auth()->guard('web')->user()->organizable,'work_time'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.work_time.edit') ? 'active' : '' }}"
-                       href="{{route('organization.work_time.edit')}}" aria-expanded="false">
-                        <i class="fas fa-clock"></i>
-                        <span class="nav-text">{{__('words.work_time')}}</span>
-                    </a>
-                </li>
-            @endif
+                                            @if(auth('web')->user()->hasPermission('create-org_users-'. $orgData->name_en))
+                                                <li class="nav-item">
+                                                    <a href="{{route('organization.users.create')}}"
+                                                       class="nav-link {{ request()->routeIs('organization.users.create') ? 'active' : '' }}">
+                                                        <i class="fas fa-folder-plus"></i>
+                                                        <p>{{__('words.create')}}</p>
+                                                    </a>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </li>
+                                @endif
+                                {{-- Organization Users end --}}
 
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'contact'))
-                <li>
-                    <a class="{{ request()->routeIs('organization.contact.edit') ? 'active' : '' }}"
-                       href="{{route('organization.contact.edit')}}" aria-expanded="false">
-                        <i class="fas fa-id-card-alt"></i>
-                        <span class="nav-text">{{__('words.contact')}}</span>
-                    </a>
-                </li>
-            @endif
+                                {{-- Branch Users Start --}}
+                                @if(auth('web')->user()->hasPermission('read-branch_users-'. $orgData->name_en))
+                                    <li class="nav-item {{ request()->routeIs('organization.org-branches-users.*') ? 'menu-open' : '' }}">
+                                        <a href="#"
+                                           class="nav-link {{ request()->routeIs('organization.org-branches-users.*') ? 'sub-menu active' : '' }}">
+                                            <i class="nav-icon fas fa-user"></i>
+                                            <p>
+                                                {{__('words.branches_users')}}
+                                                <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                            </p>
+                                        </a>
+                                        <ul class="nav nav-treeview">
+                                            @if(auth('web')->user()->hasPermission('read-branch_users-'. $orgData->name_en))
+                                                <li class="nav-item">
+                                                    <a href="{{route('organization.org-branches-users.index')}}"
+                                                       class="nav-link {{ request()->routeIs('organization.org-branches-users.index') ? 'active' : '' }}">
+                                                        <i class="far fa-eye nav-icon"></i>
+                                                        <p>{{__('words.show_all')}}</p>
+                                                    </a>
+                                                </li>
+                                            @endif
+                                        </ul>
+                                    </li>
+                                @endif
+                                {{-- Branch Users end --}}
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Users details toggle end --}}
 
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->phones)
-                <li>
-                    <a class="{{ request()->routeIs('organization.phone.index') ? 'active' : '' }}"
-                       href="{{route('organization.phone.index')}}" aria-expanded="false">
-                        <i class="fas fa-phone"></i>
-                        <span class="nav-text">{{__('words.phones')}}</span>
-                    </a>
-                </li>
-            @endif
+                {{-- Permissions Users Start --}}
+                @if(auth('web')->user()->hasPermission('read-org_roles-'. $orgData->name_en))
+                    <li class="nav-item {{ request()->routeIs('organization.org-roles.*') ? 'menu-open' : '' }}">
+                        <a href="#"
+                           class="nav-link {{ request()->routeIs('organization.org-roles.*') ? 'sub-menu active' : '' }}">
+                            <i class="fas fa-universal-access"></i>
+                            <p>
+                                {{__('words.permissions')}}
+                                <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @if(auth('web')->user()->hasPermission('read-org_roles-'. $orgData->name_en))
+                                <li class="nav-item">
+                                    <a href="{{route('organization.org-roles.index')}}"
+                                       class="nav-link {{ request()->routeIs('organization.org-roles.index') ? 'active' : '' }}">
+                                        <i class="far fa-eye nav-icon"></i>
+                                        <p>{{__('words.show_all')}}</p>
+                                    </a>
+                                </li>
+                            @endif
 
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->day_offs)
-                <li>
-                    <a class="{{ request()->routeIs('organization.day_off.index') ? 'active' : '' }}"
-                       href="{{route('organization.day_off.index')}}" aria-expanded="false">
-                        <i class="fas fa-calendar-day"></i>
-                        <span class="nav-text">{{__('words.day_offs')}}</span>
-                    </a>
-                </li>
-            @endif
+                            @if(auth('web')->user()->hasPermission('create-org_roles-'. $orgData->name_en))
+                                <li class="nav-item">
+                                    <a href="{{route('organization.org-roles.create')}}"
+                                       class="nav-link {{ request()->routeIs('organization.org-roles.create') ? 'active' : '' }}">
+                                        <i class="fas fa-folder-plus"></i>
+                                        <p>{{__('words.create')}}</p>
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </li>
+                @endif
+                {{-- Permissions Users end--}}
 
-            {{-- reserve_vehicles --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->reserve_vehicles)
-                <li>
-                    <a class="{{ request()->routeIs('organization.reserve_vehicle.index') ? 'active' : '' }}"
-                       href="{{route('organization.reserve_vehicle.index')}}" aria-expanded="false">
-                        <i class="fas fa-clipboard"></i>
-                        <span class="nav-text">{{__('words.reserve_vehicles')}}</span>
-                    </a>
-                </li>
-            @endif
+                {{-- Organization Data toggle start --}}
+                @if(auth('web')->user()->hasPermission(['read-general_data-' . $orgData->name_en]))
+                    <li class="nav-item {{ request()->routeIs('organization.organizations.*') ? 'menu-open' : '' }}">
+                        <a href="{{route('organization.organizations.index')}}"
+                           class="nav-link {{ request()->routeIs('organization.organizations.*') ? 'sub-menu active' : '' }}">
+                            <i class="fas fa-server"></i>
+                            <p>
+                                {{__('words.show_data')}}
+                            </p>
+                        </a>
+                    </li>
+                @endif
+                {{-- Organization Data toggle end --}}
 
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->tests)
-                <li>
-                    <a class="{{ request()->routeIs('organization.test.index') ? 'active' : '' }}"
-                       href="{{route('organization.test.index')}}" aria-expanded="false">
-                        <i class="fas fa-clipboard"></i>
-                        <span class="nav-text">{{__('words.tests')}}</span>
-                    </a>
-                </li>
-            @endif
+                {{-- Banches toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'branches'))
+                    @if(auth('web')->user()->hasPermission(['read-org-branch-general_data-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.org.branches.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.org.branches.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-code-branch"></i>
+                                <p>
+                                    {{__('words.branches')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-org-branch-general_data-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.org.branches.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.org.branches.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
 
+                                @if(auth('web')->user()->hasPermission(['create-org-branch-general_data-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.org.branches.create')}}"
+                                           class="nav-link {{ request()->routeIs('organization.org.branches.create') ? 'active' : '' }}">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <p>{{__('words.create')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Banches toggle end --}}
 
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->reviews)
-                <li>
-                    <a class="{{ request()->routeIs('organization.review.index') ? 'active' : '' }}"
-                       href="{{route('organization.review.index')}}" aria-expanded="false">
-                        <i class="fas fa-star-half-alt"></i>
-                        <span class="nav-text">{{__('words.reviews')}}</span>
-                    </a>
-                </li>
-            @endif
+                {{-- Vehicle toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'vehicles'))
+                    @if(auth('web')->user()->hasPermission(['read-vehicles-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.vehicles.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.vehicles.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-car-side"></i>
+                                <p>
+                                    {{__('words.vehicles')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-vehicles-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.vehicles.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.vehicles.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
 
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->branches)
-                <li>
-                    <a class="{{ request()->routeIs('organization.branch.index') ? 'active' : '' }}"
-                       href="{{route('organization.branch.index')}}" aria-expanded="false">
-                        <i class="fas fa-code-branch"></i>
-                        <span class="nav-text">{{__('words.branches')}}</span>
-                    </a>
-                </li>
+                                @if(auth('web')->user()->hasPermission(['create-vehicles-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.vehicles.create')}}"
+                                           class="nav-link {{ request()->routeIs('organization.vehicles.create') ? 'active' : '' }}">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <p>{{__('words.create')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Vehicle toggle end --}}
 
-            @endif
+                {{-- Rental Office Cars toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'rental_office_cars'))
+                    @if(auth('web')->user()->hasPermission(['read-rental_office_cars-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.rental-office-cars.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.rental-office-cars.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-car-side"></i>
+                                <p>
+                                    {{__('words.rental_office_cars')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-rental_office_cars-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.rental-office-cars.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.rental-office-cars.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
 
-            {{-- Special number routes start --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->special_numbers)
-                <li>
-                    <a class="{{ request()->routeIs('organization.special-numbers.index') ? 'active' : '' }}"
-                       href="{{route('organization.special-numbers.index')}}" aria-expanded="false">
-                        <i class="fas fa-award"></i>
-                        <span class="nav-text">{{__('words.special_numbers')}}</span>
-                    </a>
-                </li>
-            @endif
+                                @if(auth('web')->user()->hasPermission(['create-rental_office_cars-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.rental-office-cars.create')}}"
+                                           class="nav-link {{ request()->routeIs('organization.rental-office-cars.create') ? 'active' : '' }}">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <p>{{__('words.create')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Rental Office Cars toggle end --}}
 
-            {{-- reserve_vehicles --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->special_number_reservation)
-                <li>
-                    <a class="{{ request()->routeIs('organization.special-number-reservations') ? 'active' : '' }}"
-                       href="{{route('organization.special-number-reservations')}}" aria-expanded="false">
-                        <i class="fas fa-clipboard"></i>
-                        <span class="nav-text">{{__('words.special_number_reservations')}}</span>
-                    </a>
-                </li>
-            @endif
-            {{-- Special number routes start --}}
+                {{-- Rental Office Cars Properties toggle start --}}
+                @if($orgData->getTable() == 'rental_offices')
+                    @if(auth('web')->user()->hasPermission(['read-cars_properties-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.rental-cars-properties.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.rental-cars-properties.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-car"></i>
+                                <p>
+                                    {{__('words.cars_properties')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-cars_properties-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.rental-cars-properties.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.rental-cars-properties.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
 
-            {{-- Verification routes start --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->special_number_verification)
-                <li>
-                    <a class="{{ request()->routeIs('organization.verifications.index') ? 'active' : '' }}"
-                       href="{{route('organization.verifications.index')}}" aria-expanded="false">
-                        <i class="fas fa-sync"></i>
-                        <span class="nav-text">{{__('words.verifications')}}</span>
-                    </a>
-                </li>
-            @endif
-            {{-- Verification routes end --}}
+                                @if(auth('web')->user()->hasPermission(['create-cars_properties-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.rental-cars-properties.create')}}"
+                                           class="nav-link {{ request()->routeIs('organization.rental-cars-properties.create') ? 'active' : '' }}">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <p>{{__('words.create')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Rental Office Cars Properties toggle end --}}
 
-            {{-- Discount Card routes start --}}
-            @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable && auth()->guard('web')->user()->organizable->discount_cards)
-            <li>
-                <a class="{{ request()->routeIs('organization.discount-cards.index') ? 'active' : '' }}"
-                   href="{{route('organization.discount-cards.index')}}" aria-expanded="false">
-                    <i class="fas fa-donate"></i>
-                    <span class="nav-text">{{__('words.discount_cards')}}</span>
-                </a>
-            </li>
-            @endif
-            {{-- Discount Card routes end --}}
+                {{-- Rental Office Laws toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'rental_laws'))
+                    @if(auth('web')->user()->hasPermission(['read-rental_laws-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.rental-laws.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.rental-laws.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-solid fa-gavel"></i>
+                                <p>
+                                    {{__('words.rental_laws')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-rental_laws-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.rental-laws.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.rental-laws.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
 
-            {{-- Organizations routes end --}}
-        </ul>
+                                @if(auth('web')->user()->hasPermission(['create-rental_laws-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.rental-laws.create')}}"
+                                           class="nav-link {{ request()->routeIs('organization.rental-laws.create') ? 'active' : '' }}">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <p>{{__('words.create')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Rental Office Laws toggle end --}}
+
+                {{-- Available Vehicles toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'available_vehicles'))
+
+                    @if(auth('web')->user()->hasPermission(['read-available_vehicles-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.available-vehicles.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.available-vehicles.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-car-side"></i>
+                                <p>
+                                    {{__('words.available_vehicles')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-available_vehicles-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.available-vehicles.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.available-vehicles.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if(auth('web')->user()->hasPermission(['update-available_vehicles-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.available-vehicles.edit')}}"
+                                           class="nav-link {{ request()->routeIs('organization.available-vehicles.edit') ? 'active' : '' }}">
+                                            <i class="fas fa-pen"></i>
+                                            <p>{{__('words.edit')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Available Vehicles toggle end --}}
+
+                {{-- Available Products and Services toggle start --}}
+                @if($orgData->getAttribute('branchable_type') != 'App\\Models\\CarShowroom')
+                    {{-- Available Products toggle start --}}
+                    @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'available_products'))
+
+                        @if(auth('web')->user()->hasPermission(['read-available_products-' . $orgData->name_en]))
+                            <li class="nav-item {{ request()->routeIs('organization.available-products.*') ? 'menu-open' : '' }}">
+                                <a href="#"
+                                   class="nav-link {{ request()->routeIs('organization.available-products.*') ? 'sub-menu active' : '' }}">
+                                    <i class="fab fa-product-hunt"></i>
+                                    <p>
+                                        {{__('words.available_products')}}
+                                        <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    @if(auth('web')->user()->hasPermission(['read-available_products-' . $orgData->name_en]))
+                                        <li class="nav-item">
+                                            <a href="{{route('organization.available-products.index')}}"
+                                               class="nav-link {{ request()->routeIs('organization.available-products.index') ? 'active' : '' }}">
+                                                <i class="far fa-eye nav-icon"></i>
+                                                <p>{{__('words.show_all')}}</p>
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    @if(auth('web')->user()->hasPermission(['update-available_products-' . $orgData->name_en]))
+                                        <li class="nav-item">
+                                            <a href="{{route('organization.available-products.edit')}}"
+                                               class="nav-link {{ request()->routeIs('organization.available-products.edit') ? 'active' : '' }}">
+                                                <i class="fas fa-pen"></i>
+                                                <p>{{__('words.edit')}}</p>
+                                            </a>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </li>
+                        @endif
+                    @endif
+                    {{-- Available Products toggle end --}}
+
+                    {{-- Available Services toggle start --}}
+                    @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'available_services'))
+
+                        @if(auth('web')->user()->hasPermission(['read-available_services-' . $orgData->name_en]))
+                            <li class="nav-item {{ request()->routeIs('organization.available-services.*') ? 'menu-open' : '' }}">
+                                <a href="#"
+                                   class="nav-link {{ request()->routeIs('organization.available-services.*') ? 'sub-menu active' : '' }}">
+                                    <i class="fas fa-toolbox"></i>
+                                    <p>
+                                        {{__('words.available_services')}}
+                                        <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    @if(auth('web')->user()->hasPermission(['read-available_services-' . $orgData->name_en]))
+                                        <li class="nav-item">
+                                            <a href="{{route('organization.available-services.index')}}"
+                                               class="nav-link {{ request()->routeIs('organization.available-services.index') ? 'active' : '' }}">
+                                                <i class="far fa-eye nav-icon"></i>
+                                                <p>{{__('words.show_all')}}</p>
+                                            </a>
+                                        </li>
+                                    @endif
+
+                                    @if(auth('web')->user()->hasPermission(['update-available_services-' . $orgData->name_en]))
+                                        <li class="nav-item">
+                                            <a href="{{route('organization.available-services.edit')}}"
+                                               class="nav-link {{ request()->routeIs('organization.available-services.edit') ? 'active' : '' }}">
+                                                <i class="fas fa-pen"></i>
+                                                <p>{{__('words.edit')}}</p>
+                                            </a>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </li>
+                        @endif
+                    @endif
+                    {{-- Available Services toggle end --}}
+                @endif
+                {{-- Available Products and Services toggle start --}}
+
+                {{-- Vehicle Reservations toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'reserve_vehicles'))
+
+                    @if(auth('web')->user()->hasPermission(['read-reserve_vehicles-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.vehicle-reservations.*') ? 'menu-open' : '' }}">
+                            <a href="{{route('organization.vehicle-reservations.index')}}"
+                               class="nav-link {{ request()->routeIs('organization.vehicle-reservations.index') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-clipboard"></i>
+                                <p>
+                                    {{__('words.reserve_vehicles')}}
+                                </p>
+                            </a>
+                        </li>
+                    @endif
+                @endif
+                {{-- Vehicle Reservations toggle end --}}
+
+                @if($orgData->getAttribute('branchable_type') != 'App\\Models\\CarShowroom')
+                    {{-- Test Drive toggle start --}}
+                    @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'tests'))
+
+                        @if(auth('web')->user()->hasPermission(['read-tests-' . $orgData->name_en]))
+                            <li class="nav-item {{ request()->routeIs('organization.tests.*') ? 'menu-open' : '' }}">
+                                <a href="{{route('organization.tests.index')}}"
+                                   class="nav-link {{ request()->routeIs('organization.tests.index') ? 'sub-menu active' : '' }}">
+                                    <i class="fas fa-clipboard"></i>
+                                    <p>
+                                        {{__('words.tests')}}
+                                    </p>
+                                </a>
+                            </li>
+                        @endif
+                    @endif
+                    {{-- Test Drive toggle end --}}
+
+                    {{-- Reservations toggle start --}}
+                    @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'reservations'))
+
+                        @if(auth('web')->user()->hasPermission(['read-reservations-' . $orgData->name_en]))
+                            <li class="nav-item {{ request()->routeIs('organization.reservations.*') ? 'menu-open' : '' }}">
+                                <a href="{{route('organization.reservations.index')}}"
+                                   class="nav-link {{ request()->routeIs('organization.reservations.index') ? 'sub-menu active' : '' }}">
+                                    <i class="fas fa-clipboard"></i>
+                                    <p>
+                                        {{__('words.reservations')}}
+                                    </p>
+                                </a>
+                            </li>
+                        @endif
+                    @endif
+                    {{-- Reservations toggle end --}}
+                @endif
+
+                {{-- Product toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'products'))
+                    @if(auth('web')->user()->hasPermission(['read-products-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.products.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.products.*') ? 'sub-menu active' : '' }}">
+                                <i class="fab fa-product-hunt"></i>
+                                <p>
+                                    {{__('words.products')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-products-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.products.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.products.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if(auth('web')->user()->hasPermission(['create-products-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.products.create')}}"
+                                           class="nav-link {{ request()->routeIs('organization.products.create') ? 'active' : '' }}">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <p>{{__('words.create')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Product toggle end --}}
+
+                {{-- Service toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'services'))
+                    @if(auth('web')->user()->hasPermission(['read-services-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.services.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.services.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-toolbox"></i>
+                                <p>
+                                    {{__('words.services')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-services-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.services.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.services.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if(auth('web')->user()->hasPermission(['create-services-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.services.create')}}"
+                                           class="nav-link {{ request()->routeIs('organization.services.create') ? 'active' : '' }}">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <p>{{__('words.create')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Service toggle end --}}
+
+                {{-- Ads toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'ads'))
+                    @if(auth('web')->user()->hasPermission(['read-org_ads-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.ads.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.ads.*') ? 'sub-menu active' : '' }}">
+                                <i class="fa fa-bullhorn" aria-hidden="true"></i>
+                                <p>
+                                    {{__('words.ads')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-org_ads-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.ads.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.ads.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if(auth('web')->user()->hasPermission(['create-org_ads-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.ads.create')}}"
+                                           class="nav-link {{ request()->routeIs('organization.ads.create') ? 'active' : '' }}">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <p>{{__('words.create')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Ads toggle end --}}
+
+                {{-- Discount Card toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'discount_cards'))
+                    @if(auth('web')->user()->hasPermission(['read-org_discount_cards-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.discount-cards.*') ? 'menu-open' : '' }}">
+                            <a href="{{route('organization.discount-cards.index')}}"
+                               class="nav-link {{ request()->routeIs('organization.discount-cards.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-donate"></i>
+                                <p>
+                                    {{__('words.discount_cards')}}
+                                </p>
+                            </a>
+                        </li>
+                    @endif
+                @endif
+                {{-- Discount Card toggle end --}}
+
+                {{-- Available Payment Methods toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'payment_methods'))
+
+                    @if(auth('web')->user()->hasPermission(['read-payment_methods-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.available-payment-methods.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.available-payment-methods.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-solid fa-money-bill"></i>
+                                <p>
+                                    {{__('words.available_payment_methods')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-payment_methods-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.available-payment-methods.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.available-payment-methods.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if(auth('web')->user()->hasPermission(['update-payment_methods-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.available-payment-methods.edit')}}"
+                                           class="nav-link {{ request()->routeIs('organization.available-payment-methods.edit') ? 'active' : '' }}">
+                                            <i class="fas fa-pen"></i>
+                                            <p>{{__('words.edit')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Available Payment Methods toggle end --}}
+
+                {{-- Work time toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'work_time'))
+
+                    @if(auth('web')->user()->hasPermission(['read-work_time-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.work-times.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.work-times.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-clock"></i>
+                                <p>
+                                    {{__('words.work_times')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-work_time-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.work-times.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.work-times.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if(auth('web')->user()->hasPermission(['update-work_time-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.work-times.edit')}}"
+                                           class="nav-link {{ request()->routeIs('organization.work-times.edit') ? 'active' : '' }}">
+                                            <i class="fas fa-pen"></i>
+                                            <p>{{__('words.edit')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Work time toggle end --}}
+
+                {{-- Day off toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'day_offs'))
+
+                    @if(auth('web')->user()->hasPermission(['read-day_offs-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.days-off.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.days-off.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-calendar-day"></i>
+                                <p>
+                                    {{__('words.days_off')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-day_offs-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.days-off.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.days-off.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if(auth('web')->user()->hasPermission(['create-day_offs-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.days-off.create')}}"
+                                           class="nav-link {{ request()->routeIs('organization.days-off.create') ? 'active' : '' }}">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <p>{{__('words.create')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Day off toggle end --}}
+
+                {{-- Contact toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'contact'))
+
+                    @if(auth('web')->user()->hasPermission(['read-contact-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.contacts.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.contacts.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-id-card-alt"></i>
+                                <p>
+                                    {{__('words.contacts')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-contact-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.contacts.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.contacts.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if(auth('web')->user()->hasPermission(['update-contact-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.contacts.edit')}}"
+                                           class="nav-link {{ request()->routeIs('organization.contacts.edit') ? 'active' : '' }}">
+                                            <i class="fas fa-pen"></i>
+                                            <p>{{__('words.edit')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Contact toggle end --}}
+
+                {{-- Phone toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'phones'))
+
+                    @if(auth('web')->user()->hasPermission(['read-phones-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.phones.*') ? 'menu-open' : '' }}">
+                            <a href="#"
+                               class="nav-link {{ request()->routeIs('organization.phones.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-phone"></i>
+                                <p>
+                                    {{__('words.phones')}}
+                                    <i class="{{app()->getLocale() == 'ar' ? 'left fas fa-angle-right' :  'right fas fa-angle-left'}}"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                @if(auth('web')->user()->hasPermission(['read-phones-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.phones.index')}}"
+                                           class="nav-link {{ request()->routeIs('organization.phones.index') ? 'active' : '' }}">
+                                            <i class="far fa-eye nav-icon"></i>
+                                            <p>{{__('words.show_all')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+
+                                @if(auth('web')->user()->hasPermission(['create-phones-' . $orgData->name_en]))
+                                    <li class="nav-item">
+                                        <a href="{{route('organization.phones.create')}}"
+                                           class="nav-link {{ request()->routeIs('organization.phones.create') ? 'active' : '' }}">
+                                            <i class="fas fa-folder-plus"></i>
+                                            <p>{{__('words.create')}}</p>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </li>
+                    @endif
+                @endif
+                {{-- Phone toggle end --}}
+
+                {{-- Review toggle start --}}
+                @if(auth()->guard('web')->user() && auth()->guard('web')->user()->organizable &&  method_exists(auth()->guard('web')->user()->organizable,'reviews'))
+                    @if(auth('web')->user()->hasPermission(['read-reviews-' . $orgData->name_en]))
+                        <li class="nav-item {{ request()->routeIs('organization.reviews.*') ? 'menu-open' : '' }}">
+                            <a href="{{route('organization.reviews.index')}}"
+                               class="nav-link {{ request()->routeIs('organization.reviews.*') ? 'sub-menu active' : '' }}">
+                                <i class="fas fa-star-half-alt"></i>
+                                <p>
+                                    {{__('words.reviews')}}
+                                </p>
+                            </a>
+                        </li>
+                    @endif
+                @endif
+                {{-- Review toggle end --}}
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
     </div>
-
-
-</div>
+    <!-- /.sidebar -->
+</aside>

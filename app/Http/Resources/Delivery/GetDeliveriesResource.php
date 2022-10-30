@@ -49,13 +49,15 @@ class GetDeliveriesResource extends JsonResource
         $data["area_id"] = $this->area_id;
         if ($request->routeIs('deliveries.show')){
             $data["area"]= $this->area;
-            $data["delivery_types"] = GetCategoriesResource::collection($this->categories);
+            $data["delivery_types"] = ShowDeliveryCategoriesResourse::collection($this->categories);
 
             $data["work_time"]= $this->work_time;
             $data["contact"] = $this->contact;
             $data["phones"] = $this->phones;
             $data["reviews"]= $this->reviews;
             $data["day_offs"] = $this->day_offs;
+            $data["conditions"] = $this->conditions;
+            $data["deliver_to"] = GetDeliveryAreasResource::collection($this->deliveryAreas);
         }
         $data['payment_methods'] =  GetPaymentMethodsResource::collection($this->payment_methods);
         $data["is_reviewed"] = $this->is_reviewed;

@@ -29,7 +29,7 @@
                 }
             },
             error: function (reject) {
-                alert(reject);
+                alert("{{__('message.something_wrong')}}");
             }
         });
     }
@@ -55,12 +55,10 @@
                 }
             },
             error: function (reject) {
-                alert(reject);
+                alert("{{__('message.something_wrong')}}");
             }
         });
     }
 
 
 </script>
-
-

@@ -18,7 +18,7 @@ class CreateAccessoriesStoresTable extends Migration {
 			$table->string('tax_number')->nullable();
 			$table->string('address')->nullable();
 			$table->bigInteger('city_id')->unsigned()->nullable();
-			$table->integer('number_of_views')->nullable();
+            $table->integer('number_of_views')->default(0)->nullable();
             $table->boolean('active_number_of_views')->default(1)->nullable();
 			$table->boolean('reservation_availability')->nullable()->default(1);
 			$table->boolean('reservation_active')->nullable()->default(1);
@@ -26,6 +26,7 @@ class CreateAccessoriesStoresTable extends Migration {
 			$table->boolean('delivery_active')->nullable()->default(1);
 			$table->boolean('available')->nullable()->default(1);
 			$table->boolean('active')->nullable()->default(1);
+            $table->string('created_by')->nullable()->default('system@app.com');
 			$table->timestamps();
 		});
 	}

@@ -31,11 +31,13 @@ class Agency extends Model
     protected $table = 'agencies';
     public $timestamps = true;
     protected $fillable = ['id', 'name_en', 'name_ar', 'description_en', 'description_ar', 'brand_id',
-        'tax_number', 'logo', 'country_id', 'city_id', 'area_id', 'year_founded','active_number_of_views', 'number_of_views', 'reservation_availability', 'delivery_availability', 'reservation_active', 'delivery_active', 'active', 'available',];
+        'tax_number', 'logo', 'country_id', 'city_id', 'area_id', 'year_founded', 'active_number_of_views',
+        'number_of_views', 'reservation_availability', 'delivery_availability', 'reservation_active',
+        'delivery_active', 'active', 'available','created_by'];
     protected $hidden = ['name_en', 'name_ar', 'description_en', 'description_ar', 'created_at', 'updated_at'];
     protected $appends = ['name', 'description', 'rating', 'rating_count', 'is_reviewed', 'is_favorite', 'favorites_count', 'car_models'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar') {
@@ -56,9 +58,13 @@ class Agency extends Model
     {
         return $this->getCarModels();
     }
-    //// appends attributes End //////
+    // appends attributes End
 
-    //relationship start
+    // relationship start
+    public function roles(){
+        return $this->morphMany(Role::class,'rolable');
+    }
+
     public function brand()
     {
         return $this->belongsTo('App\Models\Brand');
@@ -81,47 +87,21 @@ class Agency extends Model
 
     public function tests()
     {
-        return $this->hasManyThrough(TestDrive::class, Vehicle::class, 'vehicable_id', 'vehicle_id');
+        return $this->hasManyThrough(TestDrive::class,
+            Vehicle::class, 'vehicable_id', 'vehicle_id')
+            ->whereIn('vehicle_id',$this->vehicles()->pluck('id')->toArray());
     }
 
     public function reserve_vehicles()
     {
-        return $this->hasManyThrough(ReserveVehicle::class, Vehicle::class, 'vehicable_id', 'vehicle_id');
+        return $this->hasManyThrough(ReserveVehicle::class,
+            Vehicle::class, 'vehicable_id', 'vehicle_id')
+            ->whereIn('vehicle_id',$this->vehicles()->pluck('id')->toArray());
     }
 
-    //relationship end
+    // relationship end
 
-    //Scopes
-    public function getActive()
-    {
-        return $this->active == 1 ? __('words.active') : __('words.inactive');
-    }
-
-    public function getAvailable()
-    {
-        return $this->available == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
-    public function getReservation_availability()
-    {
-        return $this->reservation_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
-    public function getDelivery_availability()
-    {
-        return $this->delivery_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
-    public function getReservation_active()
-    {
-        return $this->reservation_active == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
-    public function getDelivery_active()
-    {
-        return $this->delivery_active == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
+    // Scopes start
     public function scopeActive($query)
     {
         return $query->where('active', 1);
@@ -136,7 +116,7 @@ class Agency extends Model
     {
         return $query->select('id', 'name_ar', 'name_en', 'description_en', 'description_ar', 'brand_id', 'tax_number',
             'logo', 'reservation_availability', 'delivery_availability', 'reservation_active', 'delivery_active',
-            'country_id', 'city_id', 'area_id', 'year_founded', 'available','active_number_of_views', 'number_of_views');
+            'country_id', 'city_id', 'area_id', 'year_founded', 'available', 'active_number_of_views', 'number_of_views');
     }
 
     public function scopeSearch($query)
@@ -167,6 +147,43 @@ class Agency extends Model
                     $q2->where('vehicle_type', request()->vehicle_type);
                 });
             });
+    }
+    // Scopes end
+
+    // accessors & Mutator start
+    public function getActive()
+    {
+        return $this->active == 1 ? __('words.active') : __('words.inactive');
+    }
+
+    public function getAvailable()
+    {
+        return $this->available == 1 ? __('words.available_prop') : __('words.not_available_prop');
+    }
+
+    public function getReservationAvailability()
+    {
+        return $this->reservation_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
+    }
+
+    public function getDeliveryAvailability()
+    {
+        return $this->delivery_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
+    }
+
+    public function getReservationActive()
+    {
+        return $this->reservation_active == 1 ? __('words.active') : __('words.inactive');
+    }
+
+    public function getDeliveryActive()
+    {
+        return $this->delivery_active == 1 ? __('words.active') : __('words.inactive');
+    }
+
+    public function getActiveNumberOfViews()
+    {
+        return $this->active_number_of_views == 1 ? __('words.active') : __('words.inactive');
     }
 
     public function getCarModels()
@@ -220,5 +237,5 @@ class Agency extends Model
     {
         return 'Agencies';
     }
-
+    // accessors & Mutator end
 }

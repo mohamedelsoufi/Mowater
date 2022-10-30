@@ -29,11 +29,11 @@ class TechnicalInspectionCenter extends Model
     public $timestamps = true;
     protected $fillable = ['id', 'logo', 'name_en', 'name_ar', 'description_en', 'description_ar',
         'tax_number', 'address', 'city_id', 'number_of_views','active_number_of_views', 'reservation_availability',
-        'reservation_active', 'available', 'active'];
+        'reservation_active', 'available', 'active', 'created_by'];
     protected $hidden = ['name_en', 'name_ar', 'description_en', 'description_ar', 'created_at', 'updated_at'];
     protected $appends = ['name', 'description', 'rating', 'rating_count', 'is_reviewed', 'is_favorite', 'favorites_count'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar') {
@@ -50,9 +50,13 @@ class TechnicalInspectionCenter extends Model
         return $this->description_en;
     }
 
-    //// appends attributes End //////
+    // appends attributes End
 
-    //relationship start
+    // relations start
+    public function roles(){
+        return $this->morphMany(Role::class,'rolable');
+    }
+
     public function city()
     {
         return $this->belongsTo('App\Models\City');
@@ -67,9 +71,9 @@ class TechnicalInspectionCenter extends Model
     {
         return $this->hasMany(RequestTechnicalInspection::class);
     }
-    //relationship end
+    // relations end
 
-    //Scopes start
+    // Scopes start
     public function scopeActive($query)
     {
         return $query->where('active', 1);
@@ -96,7 +100,7 @@ class TechnicalInspectionCenter extends Model
             });
         });
     }
-    //Scopes end
+    // Scopes end
 
     // accessors & Mutator start
     public function getActive()
@@ -109,20 +113,24 @@ class TechnicalInspectionCenter extends Model
         return $this->available == 1 ? __('words.available_prop') : __('words.not_available_prop');
     }
 
-    public function getReservation_availability()
+    public function getActiveNumberOfViews()
+    {
+        return $this->active_number_of_views == 1 ? __('words.active') : __('words.inactive');
+    }
+
+    public function getReservationAvailability()
     {
         return $this->reservation_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
     }
 
-    public function getReservation_active()
+    public function getReservationActive()
     {
-        return $this->reservation_active == 1 ? __('words.available_prop') : __('words.not_available_prop');
+        return $this->reservation_active == 1 ? __('words.active') : __('words.inactive');
     }
 
     public function getLogoAttribute($val)
     {
         return asset('uploads') . '/' . $val;
     }
-
     // accessors & Mutator end
 }

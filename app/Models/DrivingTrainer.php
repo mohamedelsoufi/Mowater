@@ -6,7 +6,7 @@ use App\Traits\Ads\HasAds;
 use App\Traits\Contacts\HasContacts;
 use App\Traits\Dayoffs\HasDayoffs;
 use App\Traits\Favourites\CanBeFavourites;
-use App\Traits\Files\HasFile;
+use App\Traits\Files\HasFiles;
 use App\Traits\OrganizationDiscountCards\HasOrganizationDiscountCard;
 use App\Traits\OrganizationUsers\HasOrgUsers;
 use App\Traits\PaymentMethods\HasPaymentMethods;
@@ -22,13 +22,14 @@ use DateTime;
 
 class DrivingTrainer extends Model
 {
-    use HasFactory, HasOrgUsers, HasFile, CanBeReserved, HasWorkTimes, HasDayoffs, HasReviews,
-        CanBeFavourites, HasAds, HasPhones,HasOrganizationDiscountCard,HasPaymentMethods,HasContacts;
+    use HasFactory, HasOrgUsers, HasFiles, CanBeReserved, HasWorkTimes, HasDayoffs, HasReviews,
+        CanBeFavourites, HasAds, HasPhones, HasOrganizationDiscountCard, HasPaymentMethods, HasContacts;
     protected $guarded = [];
     protected $hidden = ['name_en', 'name_ar', 'description_en', 'description_ar', 'profile_picture', 'created_at', 'updated_at', 'notes'];
-    protected $appends = ['name', 'description', 'is_reviewed', 'rating', 'rating_count', 'is_favorite','favorites_count', 'profile', 'file_url', 'age'];
+    protected $appends = ['name', 'description', 'price_after_discount', 'is_reviewed', 'rating', 'rating_count', 'is_favorite',
+        'favorites_count', 'profile', 'age','training_license','vehicle_image'];
 
-    //appends//
+    // appends start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar') {
@@ -45,13 +46,17 @@ class DrivingTrainer extends Model
         return $this->description_en;
     }
 
-    public function getConveyorTypeAttribute()
-    {
-        return $this->attributes['conveyor_type'] == 'automatic' ? __('words.automatic') : __('words.manual');
-    }
-    //appends end
+//    public function getConveyorTypeAttribute()
+//    {
+//        return $this->attributes['conveyor_type'] == 'automatic' ? __('words.automatic') : __('words.manual');
+//    }
+    // appends end
 
-    //relations
+    // relations start
+    public function roles(){
+        return $this->morphMany(Role::class,'rolable');
+    }
+
     public function reservations()
     {
         return $this->hasMany(TrainingReservation::class);
@@ -91,9 +96,18 @@ class DrivingTrainer extends Model
     {
         return $this->belongsToMany(TrainingType::class, DrivingTrainerType::class);
     }
-    //end
 
-    //Scopes
+    public function conditions(){
+        return $this->morphMany(Condition::class,'conditionable');
+    }
+
+    public function offers()
+    {
+        return $this->morphMany(Offer::class, 'offerable');
+    }
+    // relations end
+
+    // Scopes start
     public function scopeActive($query)
     {
         return $query->where('active', 1);
@@ -107,7 +121,7 @@ class DrivingTrainer extends Model
     public function scopeSelection($query)
     {
         return $query->select('id', 'name_ar', 'name_en', 'gender', 'description_en', 'description_ar', 'birth_date', 'conveyor_type', 'vehicle_type', 'brand_id', 'car_class_id', 'car_model_id', 'manufacturing_year', 'hour_price',
-            'country_id', 'city_id', 'area_id', 'number_of_views','active_number_of_views');
+            'country_id', 'city_id', 'area_id', 'number_of_views', 'active_number_of_views');
     }
 
     public function scopeSearch($query)
@@ -134,7 +148,7 @@ class DrivingTrainer extends Model
         });
     }
 
-    //appends
+    // accessors & Mutator start
     public function getAgeAttribute()
     {
         $bday = new DateTime($this->birth_date); // Your date of birth
@@ -149,7 +163,16 @@ class DrivingTrainer extends Model
         return $model->profile_picture ? asset('uploads') . '/' . $model->profile_picture : asset('no-user.jpg');
     }
 
-    //Scopes
+    public function getTrainingLicenseAttribute()
+    {
+        return $this->files()->where('type','training_license')->first() ? $this->files()->where('type','training_license')->first()->path : asset('uploads/default_image.png');
+    }
+
+    public function getVehicleImageAttribute()
+    {
+        return $this->files()->where('type','trainer_vehicle')->first() ? $this->files()->where('type','trainer_vehicle')->first()->path : asset('uploads/default_image.png');
+    }
+
     public function getActive()
     {
         return $this->active == 1 ? __('words.active') : __('words.inactive');
@@ -160,26 +183,10 @@ class DrivingTrainer extends Model
         return $this->available == 1 ? __('words.available_prop') : __('words.not_available_prop');
     }
 
-    public function getReservation_availability()
+    public function getActiveNumberOfViews()
     {
-        return $this->reservation_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
+        return $this->active_number_of_views == 1 ? __('words.active') : __('words.inactive');
     }
-
-    public function getDelivery_availability()
-    {
-        return $this->delivery_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
-    public function getReservation_active()
-    {
-        return $this->reservation_active == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
-    public function getDelivery_active()
-    {
-        return $this->delivery_active == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
 
     public function available_reservation(Request $request)
     {
@@ -258,4 +265,19 @@ class DrivingTrainer extends Model
         }
     }
 
+    public function getPriceAfterDiscountAttribute()
+    {
+        if ($this->discount != null) {
+            $discount_type = $this->discount_type;
+            $percentage_value = ((100 - $this->discount) / 100);
+            if ($discount_type == 'percentage') {
+                return $price_after_discount = $this->hour_price * $percentage_value;
+            } else {
+                return $price_after_discount = $this->hour_price - $this->discount;
+
+            }
+        }
+        return 0;
+    }
+    // accessors & Mutator  end
 }

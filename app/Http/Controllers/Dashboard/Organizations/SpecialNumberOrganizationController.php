@@ -3,163 +3,221 @@
 namespace App\Http\Controllers\Dashboard\Organizations;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AdminSpecialNumberOrganizationRequest;
-use App\Http\Requests\SpecialNumberOrganizationRequest;
+use App\Http\Requests\Admin\AdminSpecialNumberOrganizationRequest;
+use App\Models\Agency;
+use App\Models\Area;
+use App\Models\City;
 use App\Models\Country;
 use App\Models\SpecialNumberOrganization;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
 class SpecialNumberOrganizationController extends Controller
 {
+    private $model;
+    private $country;
+    private $city;
+    private $area;
+
+    public function __construct(SpecialNumberOrganization $model, Country $country, City $city, Area $area)
+    {
+        $this->middleware(['permission:read-special_numbers_organizations'])->only('index');
+        $this->middleware(['permission:create-special_numbers_organizations'])->only('create');
+        $this->middleware(['permission:update-special_numbers_organizations'])->only('edit');
+        $this->middleware(['permission:delete-special_numbers_organizations'])->only('delete');
+
+
+        $this->model = $model;
+        $this->country = $country;
+        $this->city = $city;
+        $this->city = $city;
+        $this->area = $area;
+    }
+
     public function index()
     {
-        $special_number_organizations = SpecialNumberOrganization::latest('id')->get();
-        $countries = Country::all();
-        return view('dashboard.organizations.special_numbers.special_number_organizations.index', compact('special_number_organizations', 'countries'));
-    }
-
-
-    public function create()
-    {
-        //
-    }
-
-
-    public function store(AdminSpecialNumberOrganizationRequest $request)
-    {
-//        return $request;
-        if (!$request->has('active'))
-            $request->request->add(['active' => 0]);
-        else
-            $request->request->add(['active' => 1]);
-
-        if (!$request->has('reservation_active'))
-            $request->request->add(['reservation_active' => 0]);
-        else
-            $request->request->add(['reservation_active' => 1]);
-
-        if (!$request->has('delivery_active'))
-            $request->request->add(['delivery_active' => 0]);
-        else
-            $request->request->add(['delivery_active' => 1]);
-
-        $request_data = $request->except(['_token', 'logo']);
-
-        if ($request->has('logo')) {
-            $image = $request->logo->store('logos');
-            $request_data['logo'] = $image;
-        }
-
-        $special_number_organization = SpecialNumberOrganization::create($request_data);
-
-        if ($special_number_organization) {
-            $special_number_organization->organization_users()->create([
-                'user_name' => $request->user_name,
-                'email' => $request->email,
-                'password' => $request->password,
-            ]);
-            return redirect()->route('special-number-organizations.index')->with(['success' => __('message.created_successfully')]);
-        } else {
-
+        try {
+            $organizations = $this->model->latest('id')->get();
+            return view('admin.organizations.special_numbers.special_number_organizations.index', compact('organizations'));
+        } catch (\Exception $e) {
             return redirect()->back()->with(['error' => __('message.something_wrong')]);
         }
     }
 
+    public function create()
+    {
+        try {
+            $countries = $this->country->latest('id')->get();
+            return view('admin.organizations.special_numbers.special_number_organizations.create', compact('countries'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
+    }
+
+    public function store(AdminSpecialNumberOrganizationRequest $request)
+    {
+        try {
+            if (!$request->has('active'))
+                $request->request->add(['active' => 0]);
+            else
+                $request->request->add(['active' => 1]);
+
+            if (!$request->has('active_number_of_views'))
+                $request->request->add(['active_number_of_views' => 0]);
+            else
+                $request->request->add(['active_number_of_views' => 1]);
+
+            if (!$request->has('reservation_active'))
+                $request->request->add(['reservation_active' => 0]);
+            else
+                $request->request->add(['reservation_active' => 1]);
+
+            if (!$request->has('delivery_active'))
+                $request->request->add(['delivery_active' => 0]);
+            else
+                $request->request->add(['delivery_active' => 1]);
+
+            $request_data = $request->except(['_token', 'logo', 'email', 'user_name', 'password', 'password_confirmation']);
+            $request_data['created_by'] = auth('admin')->user()->email;
+            if ($request->has('logo')) {
+                $image = $request->logo->store('logos');
+                $request_data['logo'] = $image;
+            }
+
+            $organization = $this->model->create($request_data);
+
+            createMasterOrgUser($organization);
+            return redirect()->route('special-number-organizations.index')->with(['success' => __('message.created_successfully')]);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => $e->getMessage()]);
+        }
+    }
+
+    private function getModelById($id)
+    {
+        $model = $this->model->find($id);
+        return $model;
+    }
 
     public function show($id)
     {
-        $show_special_number_organization = SpecialNumberOrganization::find($id);
-        $show_special_number_organization->makeVisible('name_en', 'name_ar', 'description_en', 'description_ar');
-        $users = $show_special_number_organization->organization_users()->get();
+        try {
+            $organization = $this->getModelById($id);
+            $users = $organization->organization_users()->latest('id')->get();
+            return view('admin.organizations.special_numbers.special_number_organizations.show', compact('organization', 'users'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
+    }
 
-        $data = compact('show_special_number_organization', 'users');
-        return response()->json(['status' => true, 'data' => $data]);
+    public function edit($id)
+    {
+        try {
+            $countries = $this->country->latest('id')->get();
+            $cities = $this->city->latest('id')->get();
+            $areas = $this->area->latest('id')->get();
+            $organization = $this->getModelById($id);
+            $users = $organization->organization_users()->latest('id')->get();
+            return view('admin.organizations.special_numbers.special_number_organizations.edit',
+                compact('organization', 'users', 'countries', 'cities', 'areas'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
+    }
+
+    public function update(AdminSpecialNumberOrganizationRequest $request, $id)
+    {
+        try {
+            $organization = $this->getModelById($id);
+            if (!$request->has('active'))
+                $request->request->add(['active' => 0]);
+            else
+                $request->request->add(['active' => 1]);
+
+            if (!$request->has('active_number_of_views'))
+                $request->request->add(['active_number_of_views' => 0]);
+            else
+                $request->request->add(['active_number_of_views' => 1]);
+
+            if (!$request->has('reservation_active'))
+                $request->request->add(['reservation_active' => 0]);
+            else
+                $request->request->add(['reservation_active' => 1]);
+
+            if (!$request->has('delivery_active'))
+                $request->request->add(['delivery_active' => 0]);
+            else
+                $request->request->add(['delivery_active' => 1]);
+
+            $request_data = $request->except(['_token', 'logo', 'organization_user_id', 'user_name', 'password', 'password_confirmation']);
+            $request_data['created_by'] = auth('admin')->user()->email;
+            if ($request->has('logo')) {
+                $image_path = public_path('uploads/');
+
+                if (File::exists($image_path . $organization->getRawOriginal('logo'))) {
+                    File::delete($image_path . $organization->getRawOriginal('logo'));
+                }
+                $image = $request->logo->store('logos');
+                $request_data['logo'] = $image;
+            }
+            $user = $organization->organization_users()->find($request->organization_user_id);
+            if ($request->user_name) {
+
+                $user->update([
+                    'user_name' => $request->user_name,
+                ]);
+            }
+            if ($request->password) {
+                $user->update([
+                    'password' => $request->password,
+                ]);
+            }
+            $organization->update($request_data);
+            return redirect()->route('special-number-organizations.index')->with(['success' => __('message.updated_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $organization = $this->getModelById($id);
+
+            $image_path = public_path('uploads/');
+            if (File::exists($image_path . $organization->getRawOriginal('logo'))) {
+                File::delete($image_path . $organization->getRawOriginal('logo'));
+            }
+            $organization->delete();
+            return redirect()->route('special-number-organizations.index')->with(['success' => __('message.deleted_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
     public function getUser($org_id, $user_id)
     {
-        $show_special_number_organization = SpecialNumberOrganization::find($org_id);
-        $user = $show_special_number_organization->organization_users()->find($user_id);
+        try {
+            $organization = $this->model->find($org_id);
+            $user = $organization->organization_users()->find($user_id);
 
-        $data = compact('user');
-        return response()->json(['status' => true, 'data' => $data]);
-    }
-
-
-    public function edit($id)
-    {
-        //
-    }
-
-
-    public function update(AdminSpecialNumberOrganizationRequest $request, $id)
-    {
-//        return $request;
-        $special_number_organization = SpecialNumberOrganization::find($id);
-        if (!$request->has('active'))
-            $request->request->add(['active' => 0]);
-        else
-            $request->request->add(['active' => 1]);
-
-        if (!$request->has('reservation_active'))
-            $request->request->add(['reservation_active' => 0]);
-        else
-            $request->request->add(['reservation_active' => 1]);
-
-        if (!$request->has('delivery_active'))
-            $request->request->add(['delivery_active' => 0]);
-        else
-            $request->request->add(['delivery_active' => 1]);
-
-        $request_data = $request->except(['_token', 'logo', 'user_name', 'password', 'password_confirmation']);
-
-        if ($request->has('logo')) {
-            $image_path = public_path('uploads/');
-
-            if (File::exists($image_path . $special_number_organization->getRawOriginal('logo'))) {
-                File::delete($image_path . $special_number_organization->getRawOriginal('logo'));
-            }
-
-            $image = $request->logo->store('logos');
-            $request_data['logo'] = $image;
-        }
-
-        $user = $special_number_organization->organization_users()->find($request->organization_user_id);
-        if ($request->user_name) {
-
-            $user->update([
-                'user_name' => $request->user_name,
-            ]);
-        }
-        if ($request->password) {
-
-            $user->update([
-                'password' => $request->password,
-            ]);
-        }
-
-        $special_number_organization->update($request_data);
-
-
-        if ($special_number_organization) {
-            return redirect()->route('special-number-organizations.index')->with(['success' => __('message.updated_successfully')]);
-        } else {
-
-            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+            $data = compact('user');
+            return response()->json(['status' => true, 'data' => $data]);
+        } catch (\Exception $e) {
+            return responseJson(0, 'error', $e->getMessage());
         }
     }
 
-
-    public function destroy($id)
+    public function getUsers($org_id)
     {
-        $special_number_organization = SpecialNumberOrganization::find($id);
+        try {
+            $organization = $this->model->find($org_id);
+            $users = $organization->organization_users()->latest('id')->get();
 
-        $image_path = public_path('uploads/');
-        if (File::exists($image_path . $special_number_organization->getRawOriginal('logo'))) {
-            File::delete($image_path . $special_number_organization->getRawOriginal('logo'));
+            $data = compact('users');
+            return response()->json(['status' => true, 'data' => $data]);
+        } catch (\Exception $e) {
+            return responseJson(0, 'error', $e->getMessage());
         }
-        $special_number_organization->delete();
-        return redirect()->route('special-number-organizations.index')->with(['success' => __('message.deleted_successfully')]);
     }
 }

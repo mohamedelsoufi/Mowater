@@ -3,70 +3,93 @@
 namespace App\Http\Controllers\Dashboard\General;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CurrencyRequest;
+use App\Http\Requests\Admin\CurrencyRequest;
 use App\Models\Currency;
 use Illuminate\Http\Request;
 
 class CurrencyController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['permission:read-currencies'])->only('index');
+        $this->middleware(['permission:create-currencies'])->only('create');
+        $this->middleware(['permission:update-currencies'])->only('edit');
+        $this->middleware(['permission:delete-currencies'])->only('delete');
+    }
 
     public function index()
     {
-        $currencies = Currency::all();
-        return view('dashboard.general.currencies.index', compact('currencies'));
+        try {
+            $currencies = Currency::all();
+            return view('admin.general.currencies.index', compact('currencies'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
 
     public function create()
     {
-        //
+        return view('admin.general.currencies.create');
     }
 
     public function store(CurrencyRequest $request)
     {
-        $currency = Currency::create($request->except(['_token']));
-        if ($currency) {
-            return redirect()->route('currencies.index')->with(['success'=>__('message.created_successfully')]);
-        } else {
+        try {
+            $request_data = $request->except(['_token']);
+            $request_data['created_by'] = auth('admin')->user()->email;
+            Currency::create($request_data);
+            return redirect()->route('currencies.index')->with(['success' => __('message.created_successfully')]);
 
-            return redirect()->back()->with(['error'=>__('message.something_wrong')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
         }
     }
 
 
     public function show($id)
     {
-        $show_currency = Currency::find($id);
-        $show_currency->makeVisible('name_en','name_ar');
-        $data = compact('show_currency');
-        return response()->json(['status' => true, 'data'=>$data]);
+        try {
+            $currency = Currency::find($id);
+            return view('admin.general.currencies.show', compact('currency'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
 
     public function edit($id)
     {
-        //
+        try {
+            $currency = Currency::find($id);
+            return view('admin.general.currencies.edit', compact('currency'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
     public function update(CurrencyRequest $request, $id)
     {
-        $currency = Currency::find($id);
-
-        $update_currency = $currency->update($request->except(['_token']));
-        if ($update_currency)
-        {
-            return redirect()->route('currencies.index')->with(['success'=>__('message.updated_successfully')]);
-        }else{
-            return redirect()->route('currencies.index')->with(['error'=> __('message.something_wrong')]);
+        try {
+            $currency = Currency::find($id);
+            $request_data = $request->except(['_token']);
+            $request_data['created_by'] = auth('admin')->user()->email;
+            $currency->update($request_data);
+            return redirect()->route('currencies.index')->with(['success' => __('message.updated_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
         }
     }
 
 
     public function destroy($id)
     {
-        $currency = Currency::find($id);
-        $currency->delete();
-        return redirect()->route('currencies.index')->with(['success'=> __('message.deleted_successfully')]);
-
+        try {
+            $currency = Currency::find($id);
+            $currency->delete();
+            return redirect()->route('currencies.index')->with(['success' => __('message.deleted_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 }

@@ -15,27 +15,32 @@ class PaymentMethod extends Model
     protected $hidden = ['created_at', 'updated_at', 'name_en', 'name_ar'];
     protected $appends = ['name'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar')
             return $this->name_ar;
         return $this->name_en;
     }
-    //// appends attributes end //////
+    // appends attributes end
 
 
-    //relationship start
+    // relationship start
     public function rental_offices()
     {
         return $this->morphedByMany(RentalOffice::class, 'model');
     }
-    //relationship end
+    // relationship end
 
-    // scopes
+    // accessors & Mutator start
+    public function setNameEnAttribute($val)
+    {
+        $this->attributes['name_en'] = ucwords($val);
+    }
 
     public function getSymbolAttribute($val)
     {
         return asset('uploads') . '/' . $val;
     }
+    // accessors & Mutator end
 }

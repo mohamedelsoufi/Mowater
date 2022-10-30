@@ -12,19 +12,19 @@ class Currency extends Model
     use HasFactory;
 
     protected $table = 'currencies';
-    protected $fillable = ['id', 'name_en', 'name_ar', 'code'];
+    protected $fillable = ['id', 'name_en', 'name_ar', 'code', 'created_by'];
     protected $hidden = ['name_en', 'name_ar', 'created_at', 'updated_at'];
     public $timestamps = true;
     protected $appends = ['name'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar')
             return $this->name_ar;
         return $this->name_en;
     }
-    //// appends attributes end //////
+    // appends attributes end
 
     // relations start
     public function country()
@@ -33,7 +33,7 @@ class Currency extends Model
     }
     // relations end
 
-    // scopes
+    // scopes start
     public function scopeSelection($query)
     {
         return $query->select('id', 'name_en', 'name_ar', 'code');
@@ -52,5 +52,12 @@ class Currency extends Model
             });
         });
     }
+    // scopes end
 
+    // accessors & Mutator start
+    public function setNameEnAttribute($val)
+    {
+        $this->attributes['name_en'] = ucwords($val);
+    }
+    // accessors & Mutator end
 }

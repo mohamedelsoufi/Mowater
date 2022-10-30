@@ -16,16 +16,16 @@ class City extends Model
     protected $hidden = ['created_at', 'updated_at','name_en', 'name_ar'];
     protected $appends = ['name'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar')
             return $this->name_ar;
         return $this->name_en;
     }
-    //// appends attributes end //////
+    // appends attributes end
 
-    //relationship start
+    // relationship start
     public function country()
     {
         return $this->belongsTo('App\Models\Country');
@@ -35,9 +35,9 @@ class City extends Model
     {
         return $this->hasMany('App\Models\Area');
     }
-    //relationship end
+    // relationship end
 
-    //scopes
+    // scopes start
 
     public function scopeSearch($query)
     {
@@ -45,4 +45,12 @@ class City extends Model
             return $q->where('country_id', request()->country_id);
         });
     }
+    // scopes end
+
+    // accessors & Mutator start
+    public function setNameEnAttribute($val)
+    {
+        $this->attributes['name_en'] = ucwords($val);
+    }
+    // accessors & Mutator end
 }

@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Dashboard\Organizations;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AdminScrapRequest;
-use App\Http\Requests\ScrapRequest;
-use App\Models\Brand;
+use App\Http\Requests\Admin\AdminScrapRequest;
 use App\Models\Country;
 use App\Models\Scrap;
 use Illuminate\Http\Request;

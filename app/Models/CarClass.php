@@ -12,11 +12,11 @@ class CarClass extends Model
     use HasFactory;
     protected $table = 'car_classes';
     public $timestamps = true;
-    protected $fillable = array('id','name_en', 'name_ar', 'active');
+    protected $fillable = array('id','name_en', 'name_ar', 'active','created_by');
     protected $hidden = ['created_at', 'updated_at','name_en', 'name_ar'];
     protected $appends = ['name'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar') {
@@ -24,7 +24,7 @@ class CarClass extends Model
         }
         return $this->name_en;
     }
-    //// appends attributes end //////
+    // appends attributes end
 
     // relations start
     public function vehicles(){
@@ -32,7 +32,7 @@ class CarClass extends Model
     }
     // relations end
 
-    // scopes
+    // scopes start
     public function scopeActive($query)
     {
         return $query->where('active', 1);
@@ -60,10 +60,17 @@ class CarClass extends Model
     public function scopeSelection($query){
        return $query->select('id','name_ar','name_en','active');
     }
+    // scopes end
 
+    // accessors & Mutator start
     public function getActive()
     {
         return $this->active == 1 ? __('words.active') : __('words.inactive');
     }
 
+    public function setNameEnAttribute($val)
+    {
+        $this->attributes['name_en'] = ucwords($val);
+    }
+    // accessors & Mutator end
 }

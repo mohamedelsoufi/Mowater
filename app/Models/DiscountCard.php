@@ -10,12 +10,13 @@ class DiscountCard extends Model
 {
     use HasFactory;
     protected $table = 'discount_cards';
-    protected $fillable = ['id', 'title_en', 'title_ar', 'description_en', 'description_ar', 'price', 'year', 'image','status','active_number_of_views','number_of_views','active'];
+    protected $fillable = ['id', 'title_en', 'title_ar', 'description_en', 'description_ar', 'price',
+        'year', 'image', 'status', 'active_number_of_views', 'number_of_views', 'active', 'created_by'];
     protected $hidden = ['title_en', 'title_ar', 'description_en', 'description_ar', 'created_at', 'updated_at'];
     public $timestamps = true;
     protected $appends = ['title', 'description'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getTitleAttribute()
     {
         if (App::getLocale() == 'ar') {
@@ -31,17 +32,18 @@ class DiscountCard extends Model
         }
         return $this->description_en;
     }
-    //// appends attributes End //////
+    // appends attributes End
 
 
-    //relationship start
+    // relationship start
     public function offers()
     {
         return $this->hasMany(Offer::class);
     }
 
-    public function users(){
-        return $this->belongsToMany(User::class,'discount_card_users','user_id', 'discount_card_id')->withPivot('id','barcode', 'vehicles','price')->withTimestamps();
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'discount_card_users', 'user_id', 'discount_card_id')->withPivot('id', 'barcode', 'vehicles', 'price')->withTimestamps();
     }
 
     public function agency()
@@ -103,14 +105,9 @@ class DiscountCard extends Model
     {
         return $this->morphedByMany(DrivingTrainer::class, 'organizable');
     }
-    //relationship end
+    // relationship end
 
-    //scopes
-    public function getActive()
-    {
-        return $this->active == 1 ? __('words.active') : __('words.inactive');
-    }
-
+    // scopes start
     public function scopeActive($query)
     {
         return $query->where('active', 1);
@@ -120,4 +117,28 @@ class DiscountCard extends Model
     {
         return asset('uploads') . '/' . $val;
     }
+    // scopes end
+
+    // accessors & Mutator start
+    public function getActive()
+    {
+        return $this->active == 1 ? __('words.active') : __('words.inactive');
+    }
+
+    public function getActiveNumberOfViews()
+    {
+        return $this->active_number_of_views == 1 ? __('words.active') : __('words.inactive');
+    }
+
+    public function getStatus()
+    {
+        if ($this->status == 'not_started')
+            return __('words.not_started');
+        if ($this->status == 'started')
+            return __('words.started');
+        if ($this->status == 'finished')
+            return __('words.finished');
+
+    }
+    // accessors & Mutator end
 }

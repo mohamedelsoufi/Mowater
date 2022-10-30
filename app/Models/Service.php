@@ -21,7 +21,7 @@ class Service extends Model
 
     protected $appends = ['name', 'description', 'one_image', 'price_after_discount'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar')
@@ -35,9 +35,9 @@ class Service extends Model
             return $this->description_ar;
         return $this->description_en;
     }
-    //// appends attributes end //////
+    // appends attributes end
 
-    //relationship start
+    // relations start
     public function servable()
     {
         return $this->morphTo();
@@ -51,6 +51,11 @@ class Service extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function sub_category()
+    {
+        return $this->belongsTo(SubCategory::class);
     }
 
     public function reservations()
@@ -67,14 +72,9 @@ class Service extends Model
     {
         return $this->hasMany(TrafficClearingOfficeRequest::class);
     }
-    //relationship start
+    // relations start
 
-    //Scopes
-    public function get_offer($discount_card_id)
-    {
-        return $this->offers()->where('offers.discount_card_id', $discount_card_id)->first();
-    }
-
+    // Scopes start
     public function scopeActive($query)
     {
         return $query->where('active', 1);
@@ -88,7 +88,14 @@ class Service extends Model
     public function scopeSelection($query)
     {
         return $query->select('id', 'name_en', 'name_ar', 'description_en', 'description_ar', 'servable_type', 'servable_id', 'category_id',
-            'discount', 'discount_type', 'discount_availability', 'active', 'available', 'price', 'location_required', 'number_of_views','active_number_of_views');
+            'discount', 'discount_type', 'active', 'available', 'price', 'location_required', 'number_of_views','active_number_of_views');
+    }
+    //Scopes end
+
+    // accessors & Mutator start
+    public function get_offer($discount_card_id)
+    {
+        return $this->offers()->where('offers.discount_card_id', $discount_card_id)->first();
     }
 
     public function getOneImageAttribute()
@@ -107,6 +114,16 @@ class Service extends Model
         return $this->available == 1 ? __('words.available_prop') : __('words.not_available_prop');
     }
 
+    public function getActive()
+    {
+        return $this->active == 1 ? __('words.active') : __('words.inactive');
+    }
+
+    public function getActiveNumberOfViews()
+    {
+        return $this->active_number_of_views == 1 ? __('words.active') : __('words.inactive');
+    }
+
     public function getPriceAfterDiscountAttribute()
     {
         if ($this->discount != null) {
@@ -121,4 +138,5 @@ class Service extends Model
         }
         return 0;
     }
+    // accessors & Mutator end
 }

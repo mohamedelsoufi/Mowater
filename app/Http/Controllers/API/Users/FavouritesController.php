@@ -12,7 +12,12 @@ class FavouritesController extends Controller
     public function add_to_favourites(Request $request)
     {
         $rules = [
-            'model_type' => 'required|in:Agency,CarShowroom,Garage,RentalOffice,SpecialNumberOrganization,Wench,Vehicle',
+            'model_type' => 'required|in:Agency,CarShowroom,Garage,RentalOffice,SpecialNumberOrganization
+            ,Wench,Vehicle,AccessoriesStore,Accessory,Ad,Branch,Broker,BrokerPackage,CarWash,FuelStation
+            ,CarWashService,DeliveryMan,DrivingTrainer,InsuranceCompany,InsuranceCompanyPackage,MiningCenter
+            ,MiningCenterService,Product,RentalOfficeCar,Scrap,Service,SparePart,SpecialNumber,TechnicalInspectionCenter
+            ,TechnicalInspectionCenterService,TireExchangeCenter,TireExchangeCenterService,TrafficClearingOffice
+            ,TrafficClearingService',
             'model_id' => 'required'
         ];
 

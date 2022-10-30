@@ -10,12 +10,12 @@ class SubCategory extends Model
 {
     use HasFactory;
     protected $table = 'sub_categories';
-    protected $fillable = ['id', 'name_en', 'name_ar', 'category_id'];
+    protected $fillable = ['id', 'name_en', 'name_ar', 'category_id', 'created_by'];
     protected $hidden = ['name_en', 'name_ar', 'created_at', 'updated_at'];
     protected $appends = ['name'];
     public $timestamps = true;
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar') {
@@ -23,11 +23,18 @@ class SubCategory extends Model
         }
         return $this->name_en;
     }
-    //// appends attributes end //////
+    // appends attributes end
 
-    //relationship start
+    // relationship start
     public function category(){
         return $this->belongsTo(Category::class);
     }
-    //relationship end
+    // relationship end
+
+    // accessors & Mutator start
+    public function setNameEnAttribute($val)
+    {
+        $this->attributes['name_en'] = ucwords($val);
+    }
+    // accessors & Mutator end
 }

@@ -20,14 +20,12 @@ class CreateUsersTable extends Migration {
 			$table->boolean('active')->nullable()->default(1);
 			$table->date('date_of_birth')->nullable();
 			$table->enum('gender', array('male', 'female'))->nullable();
-            $table->longText('fcm_token')->nullable();
-            $table->longText('device_token')->nullable();
-            $table->string('platform')->nullable();
             $table->enum('nationality',array('GCC','Foreign'))->nullable();
             $table->unsignedBigInteger('country_id')->nullable();
             $table->unsignedBigInteger('city_id')->nullable();
             $table->unsignedBigInteger('area_id')->nullable();
             $table->string('profile_image')->nullable();
+            $table->string('created_by')->nullable()->default('system@app.com');
             $table->timestamps();
 		});
 	}

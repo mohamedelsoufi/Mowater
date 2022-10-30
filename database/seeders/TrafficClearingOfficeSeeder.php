@@ -6,6 +6,7 @@ use App\Models\Area;
 use App\Models\City;
 use App\Models\Country;
 use App\Models\PaymentMethod;
+use App\Models\Permission;
 use App\Models\TrafficClearingOffice;
 use App\Models\TrafficClearingService;
 use App\Models\TrafficClearingServiceUse;
@@ -34,6 +35,7 @@ class TrafficClearingOfficeSeeder extends Seeder
         $service_en=['Vehicle inspection','Pay fines','Vehicle registration or renewal',
             'Vehicle insurance','Transfer of vehicle ownership','Changing the plates'];
         $service_ar=['فحص المركبة','دفع المخالفات','تسجيل أو تجديد المركبة','تأمين المركبة','نقل ملكية المركبة','تغيير اللوحات'];
+        $discount_value = ['', '10', '20', '', '30'];
 
         for ($counter = 0; $counter < 3; $counter++) {
             $traffic = TrafficClearingOffice::create([
@@ -78,22 +80,54 @@ class TrafficClearingOfficeSeeder extends Seeder
                 'days' => 'Sun,Mon,Tue,Wed,Thu',
             ]);
 
-            $traffic->organization_users()->create([
+            $org_user = $traffic->organization_users()->create([
                 'user_name' => $name_en[$counter],
                 'email' => $users[$counter],
                 'password' => "123456",
             ]);
 
+            $org_role = $traffic->roles()->create([
+                'name_en' => 'Organization super admin' .' '. $traffic->name_en.$counter,
+                'name_ar' => 'صلاحية المدير المتميز' .' '. $traffic->name_ar.$counter,
+                'display_name_ar' => 'صلاحية المدير المتميز' .' '. $traffic->name_ar,
+                'display_name_en' => 'Organization super admin' .' '. $traffic->name_en,
+                'description_ar' => 'له جميع الصلاحيات',
+                'description_en' => 'has all permissions',
+                'is_super' => 1,
+            ]);
+
+            foreach (\config('laratrust_seeder.org_roles') as $key => $values) {
+                foreach ($values as $value) {
+                    $permission = Permission::create([
+                        'name' => $value . '-' . $key.'-'. $traffic->name_en,
+                        'display_name_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $traffic->name_ar,
+                        'display_name_en' => $value . ' ' . $key . ' ' . $traffic->name_en,
+                        'description_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $traffic->name_ar,
+                        'description_en' => $value . ' ' . $key . ' ' . $traffic->name_en,
+                    ]);
+                    $org_role->attachPermissions([$permission]);
+                }
+            }
+
+            $org_user->attachRole($org_role);
+
             $traffic->discount_cards()->attach(1);
 
             $services = TrafficClearingService::pluck('id');
 
-            $traffic->services()->attach($services,[
-                'fees' => 100,
-                'price' => 200
-            ]);
+            foreach ($services as $service){
+                $discount = $discount_value[array_rand($discount_value)];
+                $dis_type = ['percentage', 'amount'];
+                $traffic->trafficServices()->attach($service,[
+                    'fees' => 100,
+                    'price' => mt_rand(1000,6000),
+                    'discount' => $discount,
+                    'discount_type' => $discount != '' ? $dis_type[array_rand($dis_type)] : '',
+                ]);
+            }
 
-            $traffic_service_offers = TrafficClearingServiceUse::where('traffic_clearing_office_id',$traffic->id)->get();
+
+            $traffic_service_offers = TrafficClearingServiceUse::where('traffic_clearing_office_id',$traffic->id)->where('discount_type', '')->get();
             foreach ($traffic_service_offers as $type){
                 $type->offers()->create([
                     'discount_card_id' => 1,
@@ -106,8 +140,8 @@ class TrafficClearingOfficeSeeder extends Seeder
             }
             for ($b = 0; $b < 2; $b++) {
                 $branch = $traffic->branches()->create([
-                    'name_en' => $name_en[$counter],
-                    'name_ar' => $name_ar[$counter],
+                    'name_en' => $name_en[$counter] . 'Branch '. $b,
+                    'name_ar' => $name_ar[$counter] . ' فرع ' . $b,
                     'area_id' => Area::first()->id,
                     'address_en' => 'Branch Address ' . $b,
                     'address_ar' => 'عنوان الفرع ' . $b,
@@ -128,19 +162,44 @@ class TrafficClearingOfficeSeeder extends Seeder
                     'website' => 'https://www.google.com/',
                     'instagram_link' => 'https://www.google.com/',
                 ]);
-                $branch->organization_users()->create([
-                    'user_name' => 'Agency branch user ' . $b,
+                $branch_user = $branch->organization_users()->create([
+                    'user_name' => 'traffic clearing branch user ' . $b,
                     'email' => 'tcb'. $counter .$b.'@gmail.com',
                     'password' => "123456",
                 ]);
+
+                $branch_role = $branch->roles()->create([
+                    'name_en' => 'super admin' .' '. $traffic->name_en.' '.$branch->name_en. $b,
+                    'name_ar' => 'صلاحية المدير المتميز' .' '.$traffic->name_ar.' '. $branch->name_ar. $b,
+                    'display_name_ar' => 'صلاحية المدير المتميز' .' '. $branch->name_ar,
+                    'display_name_en' => 'super admin' .' '. $branch->name_en,
+                    'description_ar' => 'له جميع الصلاحيات',
+                    'description_en' => 'has all permissions',
+                    'is_super' => 1,
+                ]);
+
+                foreach (\config('laratrust_seeder.org_roles') as $key => $values) {
+                    foreach ($values as $value) {
+                        $permission = Permission::create([
+                            'name' => $value . '-' . $key.'-'.$branch->name_en,
+                            'display_name_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $branch->name_ar,
+                            'display_name_en' => $value . ' ' . $key . ' ' . $branch->name_en,
+                            'description_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $branch->name_ar,
+                            'description_en' => $value . ' ' . $key . ' ' . $branch->name_en,
+                        ]);
+                        $branch_role->attachPermissions([$permission]);
+                    }
+                }
+
+                $branch_user->attachRole($branch_role);
 
                 $branch->available_products()->attach($services);
                 $branch->payment_methods()->attach($payment_methods);
                 $branch->phones()->create([
                     'country_code' => '+973',
                     'phone' => $phone[array_rand($phone)],
-                    'title_en' => $name_en[$b],
-                    'title_ar' => $name_ar[$b]
+                    'title_en' => $branch->name_en,
+                    'title_ar' =>  $branch->name_ar
                 ]);
             }
 

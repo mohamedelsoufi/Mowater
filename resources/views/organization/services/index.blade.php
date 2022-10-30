@@ -1,75 +1,109 @@
 @extends('organization.layouts.app')
-@section('title','Mawatery | services')
+@section('title', __('words.show_services'))
 @section('content')
-    <div class="content-body">
-        <div class="container-fluid">
-            <div class="row page-titles mx-0">
-                <div class="col-sm-6 p-md-0">
-                    <div class="welcome-text">
-                        <h4>{{__('words.services')}} <small class="text-secondary">({{ $services->count() }}
-                                )</small></h4>
+
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>{{__('words.dashboard') .' '. $record->name}}</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb {{app()->getLocale() == 'ar' ? 'float-sm-left' :  'float-sm-right'}}">
+                            <li class="breadcrumb-item"><a
+                                    href="{{route('organization.home')}}">{{__('words.home')}}</a></li>
+                            <li class="breadcrumb-item active">{{__('words.show_services')}}</li>
+                        </ol>
                     </div>
                 </div>
-                <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{route('organization.home')}}">{{__('words.home')}}</a>
-                        </li>
-                        <li class="breadcrumb-item active">{{__('words.services')}}</li>
-                    </ol>
-                </div>
-                @include('organization.includes.alerts.success')
-                @include('organization.includes.alerts.errors')
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        {{-- create modal start --}}
-                        <div class="card-header">
-                            <a href="{{route('organization.services.create')}}"  class="btn btn-primary"> {{__('words.create')}}</a>
-                        </div>
+            </div><!-- /.container-fluid -->
+        </section>
+        @include('organization.includes.alerts.success')
+        @include('organization.includes.alerts.errors')
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
 
-                        {{-- create modal end --}}
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="example" class="display" style="min-width: 845px">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">{{__('words.show_services')}}</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="example1" class="table table-bordered table-striped text-center">
                                     <thead>
-                                    <tr class="text-center">
-                                        <th>{{__('words.images')}}</th>
-                                        <th>{{__('words.name_en')}}</th>
-                                        <th>{{__('words.name_ar')}}</th>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>{{__('words.image_s')}}</th>
+                                        <th>{{__('words.name')}}</th>
                                         <th>{{__('words.price')}} ({{__('words.bhd')}})</th>
-                                        <th>{{__('words.category')}}</th>
-                                        <th>{{__('words.discount_availability')}}</th>
                                         <th>{{__('words.availability')}}</th>
-                                        {{--                                        <th>{{__('words.location')}}</th>--}}
+                                        <th>{{__('words.activity')}}</th>
+                                        <th>{{__('words.created_by')}}</th>
+                                        <th>{{__('words.created_at')}}</th>
+                                        <th>{{__('words.updated_at')}}</th>
                                         <th>{{__('words.actions')}}</th>
                                     </tr>
                                     </thead>
-                                    <tbody id="display_data">
-                                    @foreach($services as $service)
-                                        <tr class="text-center">
+                                    <tbody>
+                                    @foreach($services as $key => $service)
+                                        <tr>
+                                            <td>{{$key+1}}</td>
                                             <td>
-                                                <img class="slider_image"
-                                                     src="{{$service->one_image}}"
-                                                     onerror="this.src='{{asset('uploads/default_image.png')}}'"
-                                                     alt="">
+                                                @if(!$service->one_image)
+                                                    <a href="{{asset('uploads/default_image.png')}}"
+                                                       data-toggle="lightbox" data-title="{{$service->name}}"
+                                                       data-gallery="gallery">
+                                                        <img class="index_image"
+                                                             src="{{asset('uploads/default_image.png')}}" alt="logo">
+                                                    </a>
+                                                @else
+                                                    <a href="{{$service->one_image}}"
+                                                       data-toggle="lightbox" data-title="{{$service->name}}"
+                                                       data-gallery="gallery">
+                                                        <img class="index_image"
+                                                             src="{{$service->one_image}}"
+                                                             onerror="this.src='{{asset('uploads/default_image.png')}}'"
+                                                             alt="logo">
+                                                    </a>
+                                                @endif
                                             </td>
-                                            <td>{{$service->name_en}}</td>
-                                            <td>{{$service->name_ar}}</td>
+                                            <td>{{$service->name}}</td>
                                             <td>{{$service->price}}</td>
-                                            <td>{{$service->category ? $service->category->name : '--'}}</td>
-                                            <td>{{$service->discount_availability == 0 ?  __('words.not_available_prop') : __('words.available_prop')}}</td>
                                             <td>{{$service->getAvailability()}}</td>
+                                            <td>{{$service->getActive()}}</td>
+                                            <td>{{$service->created_by}}</td>
+                                            <td>{{createdAtFormat($service->created_at)}}</td>
+                                            <td>{{createdAtFormat($service->created_at) == updatedAtFormat($service->updated_at) ? '--' : updatedAtFormat($service->updated_at)}}</td>
+                                            <td class="action">
+                                                @if(auth('web')->user()->hasPermission(['read-services-' . $record->name_en]))
+                                                    <a href="{{route('organization.services.show',$service->id)}}"
+                                                       class="btn btn-outline-info" data-toggle="tooltip"
+                                                       title="{{__('words.show')}}">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                @endif
 
-                                            <td>
-                                                <a href="{{route('organization.services.edit',$service->id)}}"   class="btn btn-outline-info"> {{__('words.show')}}</a>
+                                                @if(auth('web')->user()->hasPermission(['update-services-' . $record->name_en]))
+                                                    <a href="{{route('organization.services.edit',$service->id)}}"
+                                                       class="btn btn-outline-warning" data-toggle="tooltip"
+                                                       title="{{__('words.edit')}}">
+                                                        <i class="fas fa-pen"></i>
+                                                    </a>
+                                                @endif
 
-                                                <button type="button" class="btn btn-outline-danger"
-                                                        data-toggle="modal"
-                                                        data-target="#ModalDelete"
-                                                        onclick="get_service_data({{$service->id}})">
-                                                    {{__('words.delete')}}
-                                                </button>
+                                                @if(auth('web')->user()->hasPermission(['delete-services-' . $record->name_en]))
+                                                    <a href="" class="btn btn-outline-danger"
+                                                       data-toggle="modal"
+                                                       data-target="#ModalDelete{{$service->id}}"
+                                                       title="{{__('words.delete')}}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                    @include('organization.services.deleteModal')
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -77,68 +111,17 @@
 
                                 </table>
                             </div>
+                            <!-- /.card-body -->
                         </div>
+                        <!-- /.card -->
                     </div>
+                    <!-- /.col -->
                 </div>
+                <!-- /.row -->
             </div>
-        </div>
+            <!-- /.container-fluid -->
+        </section>
+
     </div>
 
-    @include('organization.services.delete')
 @endsection
-
-@section('scripts')
-    <script type="text/javascript">
-
-        @if(count($errors) > 0 && !$errors->has('update_modal'))
-        $('#storeService').modal('show');
-
-        @elseif($errors->has('update_modal'))
-        $('#editService').modal('show');
-        @foreach ($errors->get('update_modal') as $error)
-        {{--console.log({{ $error }});--}}
-        get_service_data({{$error}});
-
-        @endforeach
-        @endif
-
-        function get_service_data(id) {
-            var url = "{{route('organization.services.show' , ':id')}}";
-            url = url.replace(':id', id);
-            $.ajax({
-                type: "Get",
-                url: url,
-                datatype: 'JSON',
-                success: function (data) {
-                    // console.log(data);
-                    if (data.status == true) {
-                        let update = "{{route('organization.services.update' , ':id')}}";
-                        update = update.replace(':id', data.data.show_service.id);
-
-                        let destroy = "{{route('organization.services.destroy' , ':id')}}";
-                        destroy = destroy.replace(':id', data.data.show_service.id);
-                        $('#update_form').attr('action', update);
-                        $('#delete_form').attr('action', destroy);
-
-                        $('#text_message').text(data.data.show_service.name);
-                    }
-                },
-                error: function (reject) {alert(reject);
-                    //
-                }
-            });
-        }
-
-    </script>
-
-
-@endsection
-
-
-
-
-
-
-
-
-

@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
-use phpDocumentor\Reflection\Types\Self_;
 use App\Traits\Files\HasFile;
 
 class Section extends Model
@@ -27,8 +27,9 @@ class Section extends Model
     }
     public function getAdsAttribute()
     {
-       $ads = Ad::where('organizationable_type', 'App\\Models\\'.$this->ref_name)->orderBy(
-           AdType::select('priority')->whereColumn('ad_types.id', 'ads.ad_type_id'), 'desc')->get();
+       $ads = Ad::where('organizationable_type', 'App\\Models\\'.$this->ref_name)->where('end_date','>',Carbon::now())->where('status','approved')->latest('id')
+           ->where('end_date', '>', Carbon::now()->format('Y-m-d H:i:s'))->orderBy(
+           AdType::select('priority')->whereColumn('ad_types.id', 'ads.ad_type_id'), 'desc')->limit(12)->get();
        return $ads;
     }
     //appends attributes end
@@ -75,9 +76,19 @@ class Section extends Model
             {
                 $parent_name = $section->parent->name;
             }
-
         }
         return $parent_name;
+    }
+    public function getSubSectionName($val){
+        if ($this->section_id != null)
+            return Section::where('id',$val)->first()->name;
+        return '';
+    }
+
+    public function getReservationCostType(){
+        if ($this->reservation_cost_type == 'percentage')
+            return __('words.percentage');
+        return __('words.amount');
     }
     // accessors & Mutator ens
 }

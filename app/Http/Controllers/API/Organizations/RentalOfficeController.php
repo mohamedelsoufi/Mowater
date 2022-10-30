@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\API\RentalReservationRequest;
 use App\Http\Requests\API\ShowRentalOfficeCarRequest;
 use App\Http\Requests\API\ShowRentalOfficeRequest;
+use App\Http\Resources\RentalOffices\GetRentalCarsMowaterResource;
+use App\Http\Resources\RentalOffices\GetRentalCarsOffersResource;
 use App\Http\Resources\RentalOffices\GetRentalOfficesResource;
 use App\Http\Resources\RentalOffices\ShowRentalOfficeCarResource;
 use App\Http\Resources\RentalOffices\ShowRentalOfficeResource;
@@ -91,39 +93,50 @@ class RentalOfficeController extends Controller
 
         if (!$discount_cards->isEmpty()) {
 
-             $vehicles = $rental_office->rental_office_cars()->with(['brand', 'car_model', 'car_class', 'files' => function ($query) {
-                $query->with('color');
-            }])->wherehas('offers')->paginate(PAGINATION_COUNT);
+             $vehicles = $rental_office->rental_office_cars()->wherehas('offers')->paginate(PAGINATION_COUNT);
 
             if (empty($vehicles))
                 return responseJson(0, __('message.no_result'));
 
-            foreach ($vehicles as $vehicle) {
-                foreach ($vehicle->offers as $offer) {
-                    $discount_type = $offer->discount_type;
-                    $percentage_value = ((100 - $offer->discount_value) / 100);
-                    if ($discount_type == 'percentage') {
-                        $price_after_discount = $vehicle->price * $percentage_value;
-                        $vehicle->card_discount_value = $offer->discount_value . '%';
-//                        $vehicle->card_price_after_discount = $price_after_discount . ' BHD';
-                        $vehicle->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                    } else {
-                        $price_after_discount = $vehicle->price - $offer->discount_value;
-                        $vehicle->card_discount_value = $offer->discount_value . ' BHD';
-//                        $vehicle->card_price_after_discount = $price_after_discount . ' BHD';
-                        $vehicle->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                    }
-                    $vehicle->notes = $offer->notes;
-                    $vehicle->makeHidden('offers');
-                }
-            }
+            rentalVehicleMowaterCard($vehicles);
 
-            return responseJson(1, 'success', $vehicles);
+            return responseJson(1, 'success', GetRentalCarsMowaterResource::collection($vehicles)->response()->getData(true));
 
         } else {
             return responseJson(0, 'error', __('message.something_wrong'));
         }
 
+    }
+
+    public function getOffers(ShowRentalOfficeRequest $request)
+    {
+        try {
+            $rental_office = RentalOffice::active()->find($request->id);
+
+            // items not in mowater card and have offers start
+            $vehicles = $rental_office->rental_office_cars()->where('discount_type', '!=', '')->latest('id')->get();
+            if (isset($vehicles))
+                $vehicles->each(function ($item) {
+                    $item->is_mowater_card = false;
+                });
+            // items not in mowater card and have offers end
+
+            // items have mowater card start
+            $mowater_vehicles = $rental_office->rental_office_cars()->wherehas('offers')->latest('id')->get();
+
+            if (isset($mowater_vehicles)) {
+                rentalVehicleOffers($mowater_vehicles);
+            }
+            // items have mowater card end
+
+            //merge all results in one array
+            $merged =collect(GetRentalCarsOffersResource::collection($vehicles))
+                ->merge(GetRentalCarsOffersResource::collection($mowater_vehicles))->paginate(PAGINATION_COUNT);
+
+            return responseJson(1, 'success', $merged);
+        } catch (\Exception $e) {
+            return responseJson(0, 'error', $e->getMessage());
+        }
     }
 
     public function reservation(RentalReservationRequest $request)

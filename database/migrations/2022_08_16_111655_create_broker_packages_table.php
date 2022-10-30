@@ -22,7 +22,10 @@ class CreateBrokerPackagesTable extends Migration
             $table->float('price',11,2)->nullable();
             $table->float('discount',11,2)->nullable();
             $table->enum('discount_type',['percentage','amount'])->nullable();
-            $table->boolean('active')->default(1)->nullable();
+            $table->integer('number_of_views')->default(0)->nullable();
+            $table->boolean('active_number_of_views')->default(1)->nullable();
+            $table->boolean('available')->nullable()->default(1);
+            $table->boolean('active')->nullable()->default(1);
             $table->timestamps();
         });
     }

@@ -20,7 +20,7 @@ class SpecialNumber extends Model
     protected $hidden = ['created_at', 'updated_at', 'rating', 'rating_count', 'is_reviewed', 'is_favorite','favorites_count', 'Include_insurance'];
     protected $appends = ['price_after_discount'];
 
-    //relationship start
+    // relationship start
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -45,10 +45,10 @@ class SpecialNumber extends Model
     {
         return $this->morphMany(Offer::class, 'offerable');
     }
-    //relationship end
+    // relationship end
 
 
-    ///Scopes
+    // scopes start
     public function scopeAvailability($query)
     {
         return $query->where('availability', 1);
@@ -57,18 +57,6 @@ class SpecialNumber extends Model
     public function scopeActive($query)
     {
         return $query->where('active', 1);
-    }
-
-    public function getSizeAttribute($val)
-    {
-
-        return $val === 'normal_plate' ? __('words.normal_plate') : __('words.special_plate');
-    }
-
-    public function getTransferTypeAttribute($val)
-    {
-
-        return $val === 'own' ? __('words.own') : __('words.waiver');
     }
 
     public function scopeSorting($query)
@@ -122,10 +110,34 @@ class SpecialNumber extends Model
             $q->where('number', 'like', '%' . request()->number . '%');
         });
     }
+    // scopes end
+
+    // accessors & Mutator start
+    public function getSizeAttribute($val)
+    {
+
+        return $val === 'normal_plate' ? __('words.normal_plate') : __('words.special_plate');
+    }
+
+    public function getTransferTypeAttribute($val)
+    {
+
+        return $val === 'own' ? __('words.own') : __('words.waiver');
+    }
 
     public function getAvailable()
     {
         return $this->availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
+    }
+
+    public function getActive()
+    {
+        return $this->active == 1 ? __('words.active') : __('words.inactive');
+    }
+
+    public function getActiveNumberOfViews()
+    {
+        return $this->active_number_of_views == 1 ? __('words.active') : __('words.inactive');
     }
 
     public function getIncludeInsurance()
@@ -147,4 +159,5 @@ class SpecialNumber extends Model
         }
         return 0;
     }
+    // accessors & Mutator end
 }

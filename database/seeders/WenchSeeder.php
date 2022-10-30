@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\AdType;
+use App\Models\Permission;
 use App\Models\SubCategory;
 use Illuminate\Database\Seeder;
 
@@ -41,7 +42,7 @@ class WenchSeeder extends Seeder
             'سطحه عالي',
         ];
         $types = ['wench', 'rooftop_vehicle'];
-        $location_types = ['local', 'national', 'international'];
+        $location_types = ['local', 'national'];
         $cities = [1, 1, 1, 2, 2, 2, 3, 3, 3];
         $areas = [2, 1, 3, 5, 7, 9, 12, 14, 16];
         $is_negotiable = [0, 1];
@@ -49,7 +50,7 @@ class WenchSeeder extends Seeder
         $longitude = [50.608592796488196, 50.660938764298095, 50.639560239345236, 50.612485490810705, 50.615971680574404, 50.61789220399404, 50.584777595800475, 50.527987108377175, 50.545917683401456];
         $phone = ['3366 7714', '1311 2262', '1725 3470', '1773 2426', '3838 7468', ''];
         $price = [500, 1000, 1500, 2000, 2300];
-
+        $discount_value = ['', '10', '20', '', '30'];
         $images = ['p1.jpg', 'p2.jpg', 'p3.jpg', 'p4.jpg', 'p5.jpg', 'p6.jpg', 'p7.jpg', 'p8.jpg', 'p9.jpg', 'p10.jpg',];
 
         for ($counter = 0; $counter < 9; $counter++) {
@@ -104,11 +105,36 @@ class WenchSeeder extends Seeder
             ]);
 
 
-            $wench->organization_users()->create([
+            $org_user = $wench->organization_users()->create([
                 'user_name' => 'wench user ' . $counter,
                 'email' => $users[$counter],
                 'password' => "123456",
             ]);
+
+            $org_role = $wench->roles()->create([
+                'name_en' => 'Organization super admin' .' '. $wench->name_en. $counter,
+                'name_ar' => 'صلاحية المدير المتميز' .' '. $wench->name_ar. $counter,
+                'display_name_ar' => 'صلاحية المدير المتميز' .' '. $wench->name_ar,
+                'display_name_en' => 'Organization super admin' .' '. $wench->name_en,
+                'description_ar' => 'له جميع الصلاحيات',
+                'description_en' => 'has all permissions',
+                'is_super' => 1,
+            ]);
+
+            foreach (\config('laratrust_seeder.org_roles') as $key => $values) {
+                foreach ($values as $value) {
+                    $permission = Permission::create([
+                        'name' => $value . '-' . $key.'-'. $wench->name_en. $counter,
+                        'display_name_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $wench->name_ar,
+                        'display_name_en' => $value . ' ' . $key . ' ' . $wench->name_en,
+                        'description_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $wench->name_ar,
+                        'description_en' => $value . ' ' . $key . ' ' . $wench->name_en,
+                    ]);
+                    $org_role->attachPermissions([$permission]);
+                }
+            }
+
+            $org_user->attachRole($org_role);
 
             $wench->discount_cards()->attach(1);
 
@@ -117,24 +143,33 @@ class WenchSeeder extends Seeder
             foreach ($service_categories as $category) {
                 $sub_categories = SubCategory::where('category_id', $category->id)->get();
                 foreach ($sub_categories as $sub_category) {
-                    $service_offer = $wench->services()->create([
+                    $discount = $discount_value[array_rand($discount_value)];
+                    $dis_type = ['percentage', 'amount'];
+                    $service = $wench->services()->create([
                         'name_en' => $sub_category->name_en,
                         'name_ar' => $sub_category->name_ar,
                         'description_en' => 'description of ' . $sub_category->name_en,
                         'description_ar' => 'وصف لـ ' . $sub_category->name_ar,
                         'price' => 2500,
+                        'discount' => $discount,
+                        'discount_type' => $discount != '' ? $dis_type[array_rand($dis_type)] : '',
                         'category_id' => $sub_category->category_id,
                         'sub_category_id' => $sub_category->id,
                         'location_required' => true,
                     ]);
-                    $service_offer->offers()->create([
-                        'discount_card_id' => 1,
-                        'discount_type' => 'amount',
-                        'discount_value' => 200,
-                        'number_of_uses_times' => 'endless',
-                        'notes' => 'خصم 200 درهم على التالي',
-                    ]);
                 }
+            }
+
+            $service_offers = $wench->services()->where('discount_type', '')->get();
+            foreach ($service_offers as $ser) {
+                $dis_val = mt_rand(200,700);
+                $ser->offers()->create([
+                    'discount_card_id' => 1,
+                    'discount_type' => 'amount',
+                    'discount_value' => $dis_val,
+                    'number_of_uses_times' => 'endless',
+                    'notes' => 'خصم '.$dis_val.' درهم على التالي',
+                ]);
             }
         }
     }

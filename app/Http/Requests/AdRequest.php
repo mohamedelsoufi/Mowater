@@ -7,36 +7,27 @@ use Illuminate\Support\Facades\Validator;
 
 class AdRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     * use Illuminate\Support\Facades\Validator;
-     *
-     * @return array
-     */
     public function rules()
     {
         return [
-//            'title_en' => 'required',
-            'title_ar' => 'required',
-            'description_ar' => 'required',
-//            'description_en' => 'required',
-//            'price' => 'required',
-            'negotiable' => 'required',
-//            'country_id' => 'required|exists:countries,id',
-//            'city_id' => 'required|exists:cities,id',
-            'area_id' => 'required|exists:areas,id',
-//            'car_models' => 'required|array',
-//            'manufacturing_years' => 'required|array'
+            'title_en' => 'required|unique:ads,title_en,'.$this->id,
+            'title_ar' => 'required|unique:ads,title_ar,'.$this->id,
+            'description_en' => 'nullable',
+            'description_ar' => 'nullable',
+            'ad_type_id' => 'required_without:id|exists:ad_types,id',
+            'module_type' => 'required_unless:ad_type_id,4|nullable',
+            'link' => 'required_if:ad_type_id,4|nullable|url',
+            'image' => 'required_without:id|image|max:10000',
+            'price' => 'required|between:0,9999999999.99',
+            'negotiable' => 'required|boolean',
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'country_id' => 'required',
         ];
     }
 

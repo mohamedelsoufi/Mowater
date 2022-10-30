@@ -6,6 +6,7 @@ use App\Models\Categorizable;
 use App\Models\Category;
 use App\Models\City;
 use App\Models\PaymentMethod;
+use App\Models\Permission;
 use App\Models\TechnicalInspectionCenter;
 use Illuminate\Database\Seeder;
 
@@ -26,6 +27,7 @@ class TechnicalInspectionCenterSeeder extends Seeder
 
         $service_images = ['inspection1.jpg', 'inspection2.jpg', 'inspection3.jpg', 'inspection4.jpg', 'inspection5.jpg',];
         $logo = ['logo_inspection1.jpg', 'logo_inspection2.jpg', 'logo_inspection3.jpg', 'logo_inspection4.jpg', 'logo_inspection5.jpg',];
+        $discount_value = ['', '10', '20', '', '30'];
 
         foreach ($cities as $key => $city) {
             $technical_inspection_center = TechnicalInspectionCenter::create([
@@ -39,12 +41,16 @@ class TechnicalInspectionCenterSeeder extends Seeder
                 'address' => '5 شارع اللملكة',
             ]);
             for ($t = 0; $t < 5; $t++) {
+                $discount = $discount_value[array_rand($discount_value)];
+                $dis_type = ['percentage', 'amount'];
                 $services = $technical_inspection_center->inspectionCenterService()->create([
                     'name_en' => 'Service name ' . $t,
                     'name_ar' => 'خدمة ' . $t,
                     'description_en' => 'Service description ' . $t,
                     'description_ar' => 'وصف خدمة ' . $t,
-                    'price' => mt_rand(550, 9526)
+                    'price' => mt_rand(550, 9526),
+                    'discount' => $discount,
+                    'discount_type' => $discount != '' ? $dis_type[array_rand($dis_type)] : '',
                 ]);
                 for ($s = 0; $s < 5; $s++) {
                     $services->files()->create([
@@ -58,7 +64,7 @@ class TechnicalInspectionCenterSeeder extends Seeder
             $technical_inspection_center->categories()->attach(Category::where('section_id', 12)->inRandomOrder()
                 ->first()->id);
 
-            $center_services = $technical_inspection_center->inspectionCenterService;
+            $center_services = $technical_inspection_center->inspectionCenterService()->where('discount_type', '')->get();
 
             foreach ($center_services as $service){
                 $service->offers()->create([
@@ -95,12 +101,36 @@ class TechnicalInspectionCenterSeeder extends Seeder
                 'days' => 'Sat,Sun,Mon,Tue,Wed,Thu',
             ]);
 
-            $technical_inspection_center->organization_users()->create([
+            $org_user = $technical_inspection_center->organization_users()->create([
                 'user_name' => $name_en . ' ' . $key,
                 'email' => 'inspection_center' . $key . '@gmail.com',
                 'password' => "123456",
             ]);
 
+            $org_role = $technical_inspection_center->roles()->create([
+                'name_en' => 'Organization super admin' .' '. $technical_inspection_center->name_en. $key,
+                'name_ar' => 'صلاحية المدير المتميز' .' '. $technical_inspection_center->name_ar. $key,
+                'display_name_ar' => 'صلاحية المدير المتميز' .' '. $technical_inspection_center->name_ar,
+                'display_name_en' => 'Organization super admin' .' '. $technical_inspection_center->name_en,
+                'description_ar' => 'له جميع الصلاحيات',
+                'description_en' => 'has all permissions',
+                'is_super' => 1,
+            ]);
+
+            foreach (\config('laratrust_seeder.org_roles') as $key => $values) {
+                foreach ($values as $value) {
+                    $permission = Permission::create([
+                        'name' => $value . '-' . $key.'-'. $technical_inspection_center->name_en. $key,
+                        'display_name_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $technical_inspection_center->name_ar,
+                        'display_name_en' => $value . ' ' . $key . ' ' . $technical_inspection_center->name_en,
+                        'description_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $technical_inspection_center->name_ar,
+                        'description_en' => $value . ' ' . $key . ' ' . $technical_inspection_center->name_en,
+                    ]);
+                    $org_role->attachPermissions([$permission]);
+                }
+            }
+
+            $org_user->attachRole($org_role);
         }
 
     }

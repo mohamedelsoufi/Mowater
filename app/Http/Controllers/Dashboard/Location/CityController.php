@@ -3,79 +3,103 @@
 namespace App\Http\Controllers\Dashboard\Location;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CityRequest;
+use App\Http\Requests\Admin\CityRequest;
 use App\Models\City;
 use App\Models\Country;
 use Illuminate\Http\Request;
 
 class CityController extends Controller
 {
-    public function index()
+    public function __construct()
     {
-        $cities = City::all();
-        $countries = Country::all();
-        return view('dashboard.location.cities.index', compact('cities','countries'));
+        $this->middleware(['permission:read-cities'])->only('index');
+        $this->middleware(['permission:create-cities'])->only('create');
+        $this->middleware(['permission:update-cities'])->only('edit');
+        $this->middleware(['permission:delete-cities'])->only('delete');
     }
 
+    public function index()
+    {
+        try {
+            $cities = City::latest('id')->get();
+            $countries = Country::latest('id')->get();
+            return view('admin.location.cities.index', compact('cities', 'countries'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $city = City::find($id);
+            return view('admin.location.cities.show', compact('city'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
+    }
 
     public function create()
     {
-        //
+        try {
+            $countries = Country::latest('id')->get();
+            return view('admin.location.cities.create', compact('countries'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
     public function store(CityRequest $request)
     {
-
-        $city = City::create($request->except(['_token']));
-        if ($city) {
-            return redirect()->route('cities.index')->with(['success'=>__('message.created_successfully')]);
-        } else {
-
-            return redirect()->back()->with(['error'=>__('message.something_wrong')]);
+        try {
+            $request_data = $request->except(['_token']);
+            $request_data['created_by'] = auth('admin')->user()->email;
+            City::create($request_data);
+            return redirect()->route('cities.index')->with(['success' => __('message.created_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
         }
     }
 
-
-    public function show($id)
-    {
-        $show_city = City::find($id);
-        $show_city->makeVisible('name_en', 'name_ar');
-//        $show_city->makeHidden('name');
-        $countries = Country::all();
-        $data = compact('show_city','countries');
-        return response()->json(['status' => true, 'data'=>$data]);
-    }
-
-
     public function edit($id)
     {
-        //
+        try {
+            $city = City::find($id);
+            $countries = Country::latest('id')->get();
+            return view('admin.location.cities.edit', compact('countries', 'city'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
     public function update(CityRequest $request, $id)
     {
-        $city = City::find($id);
-        $update_city = $city->update($request->except(['_token']));
-        if ($update_city)
-        {
-            return redirect()->route('cities.index')->with(['success'=>__('message.updated_successfully')]);
-        }else{
-            return redirect()->route('cities.index')->with(['error'=> __('message.something_wrong')]);
+        try {
+            $city = City::find($id);
+            $request_data = $request->except(['_token']);
+            $request_data['created_by'] = auth('admin')->user()->email;
+            $city->update($request_data);
+            return redirect()->route('cities.index')->with(['success' => __('message.updated_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
         }
     }
 
-
     public function destroy($id)
     {
-        $city = City::find($id);
-        $city->delete();
-        return redirect()->route('cities.index')->with(['success'=> __('message.deleted_successfully')]);
-
+        try {
+            $city = City::find($id);
+            $city->delete();
+            return redirect()->route('cities.index')->with(['success' => __('message.deleted_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
-    public function get_cities_of_country($id){
-        $cities = City::where('country_id',$id)->get();
+    public function get_cities_of_country($id)
+    {
+        $cities = City::where('country_id', $id)->get();
         $data = compact('cities');
-        return response()->json(['status' => true, 'data'=>$data]);
+        return response()->json(['status' => true, 'data' => $data]);
     }
 }

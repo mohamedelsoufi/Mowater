@@ -84,26 +84,26 @@ class AuthController extends Controller
             $user = User::create($validator);
             $token = JWTAuth::fromUser($user);
 
-//            if ($request->has('email')) {
-//                $verification_code = Str::random(50); //Generate verification code
-//
-//                DB::table('user_verifications')->insert(['user_id' => $user->id, 'token' => $verification_code]);
-//
-//                $subject = "Please verify your email address.";
-//
-////                Mail::send('API.verify-email', ['name' => $name, 'nickname' => $nickname, 'verification_code' => $verification_code],
-////                    function ($mail) use ($email, $name, $subject) {
-////                        $mail->from(getenv('MAIL_FROM_ADDRESS'), getenv('APP_NAME'));
-////                        $mail->to($email, $name);
-////                        $mail->subject($subject);
-////                    });
-//                $details = [
-//                    'name' => $name,
-//                    'nickname' => $nickname,
-//                    'verification_code' => $verification_code
-//                ];
-//                Mail::to($email)->send(new APIRegisterMail($details));
-//            }
+            if ($request->has('email')) {
+                $verification_code = Str::random(50); //Generate verification code
+
+                DB::table('user_verifications')->insert(['user_id' => $user->id, 'token' => $verification_code]);
+
+                $subject = "Please verify your email address.";
+
+//                Mail::send('API.verify-email', ['name' => $name, 'nickname' => $nickname, 'verification_code' => $verification_code],
+//                    function ($mail) use ($email, $name, $subject) {
+//                        $mail->from(getenv('MAIL_FROM_ADDRESS'), getenv('APP_NAME'));
+//                        $mail->to($email, $name);
+//                        $mail->subject($subject);
+//                    });
+                $details = [
+                    'name' => $name,
+                    'nickname' => $nickname,
+                    'verification_code' => $verification_code
+                ];
+                Mail::to($email)->send(new APIRegisterMail($details));
+            }
 
             DB::commit();
             return responseJson(1, 'success', ['token' => $token, 'user' => $user]);
@@ -251,30 +251,4 @@ class AuthController extends Controller
             return responseJson(0, 'error', __('message.something_wrong'));
         }
     }
-
-//update firebase token
-    public function updateToken(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'fcm_token' => 'required',
-            'device_token' => 'required',
-            'platform' => 'nullable',
-        ]);
-
-        if ($validator->fails()) {
-            return responseJson(0, $validator->errors());
-        }
-        try {
-            $user = auth('api')->user();
-            if (!$user)
-                return responseJson(0, __('message.user_not_registered'));
-
-            $data = $user->update($request->only('fcm_token', 'device_token', 'platform'));
-            return responseJson(1, 'success', $data);
-        } catch (\Exception $e) {
-            report($e);
-            return responseJson(0, 'error', $e->getMessage());
-        }
-    }
-
 }

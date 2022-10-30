@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->call(LaratrustSeeder::class);
         $this->call(AdsTypesSeeder::class);
         $this->call(ManufacturingCountryAndBrands::class); //brands - models - car classes
         $this->call(Localization::class);
@@ -39,7 +40,6 @@ class DatabaseSeeder extends Seeder
         $this->call(CoverageTypeSeeder::class);
         $this->call(FeatureSeeder::class);
         $this->call(InsuranceCompaniesSeeder::class);
-        $this->call(InsuranceCompanyPackageSeeder::class);
         $this->call(TrainingTypesSeeder::class);
 
         $this->call(AgencySeeder::class);
@@ -47,7 +47,6 @@ class DatabaseSeeder extends Seeder
         $this->call(DeliverySeeder::class);
         $this->call(DrivingTrainersSeeder::class);
         $this->call(BrokerSeeder::class);
-        $this->call(BrokerPackageSeeder::class);
         $this->call(SubCategorySeeder::class);
         $this->call(ScrapSeeder::class);
         $this->call(SparePartsSeeder::class);
@@ -64,5 +63,6 @@ class DatabaseSeeder extends Seeder
         $this->call(MiningCenterSeeder::class);
         $this->call(AccessoriesStoreSeeder::class);
         $this->call(AdSeeder::class);
+
     }
 }

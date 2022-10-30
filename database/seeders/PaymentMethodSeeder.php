@@ -37,5 +37,10 @@ class PaymentMethodSeeder extends Seeder
             'name_en' => 'Sadeem',
             'symbol' => 'seeder/sadeem.png',
         ]);
+        PaymentMethod::create([
+            'name_ar' => 'أقساط',
+            'name_en' => 'installments',
+            'symbol' => 'seeder/installments.jpg',
+        ]);
     }
 }

@@ -8,6 +8,7 @@ use App\Http\Requests\API\DrivingTrainerRequest;
 use App\Http\Requests\API\ReserveDrivingTrainerRequest;
 use App\Http\Requests\API\ShowDrivingReservationRequest;
 use App\Http\Resources\Trainers\GetMawaterOffersResource;
+use App\Http\Resources\Trainers\GetTrainerOfferResource;
 use App\Http\Resources\Trainers\GetTrainersResource;
 use App\Http\Resources\Trainers\ReservationsResource;
 use App\Http\Resources\Trainers\TrainigTypesResource;
@@ -305,40 +306,76 @@ class DrivingTrainerController extends Controller
     {
         $trainer = DrivingTrainer::active()->find($request->trainer_id);
 
+        $price = $trainer->hour_price;
+
         $discount_cards = $trainer->discount_cards()->where('status', 'started')->get();
 
         if (!$discount_cards->isEmpty()) {
+            $offer = $trainer->offers()->first();
 
-            $types = DrivingTrainerType::where('driving_trainer_id', $request->trainer_id)->whereHas('offers')->paginate(PAGINATION_COUNT);
-
-            if (empty($types))
+            if (empty($offer))
                 return responseJson(0, __('message.no_result'));
 
-            foreach ($types as $type) {
-                foreach ($type->offers as $offer) {
-                    $discount_type = $offer->discount_type;
-                    $percentage_value = ((100 - $offer->discount_value) / 100);
-                    if ($discount_type == 'percentage') {
-                        $price_after_discount = $type->price * $percentage_value;
-                        $type->card_discount_value = $offer->discount_value . '%';
-                        $type->card_price_after_discount = $price_after_discount . ' BHD';
-                        $type->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                    } else {
-                        $price_after_discount = $type->price - $offer->discount_value;
-                        $type->card_discount_value = $offer->discount_value . ' BHD';
-                        $type->card_price_after_discount = $price_after_discount . ' BHD';
-                        $type->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                    }
-                    $type->notes = $offer->notes;
-                    $type->makeHidden('offers');
-                }
+            $discount_type = $offer->discount_type;
+            $percentage_value = ((100 - $offer->discount_value) / 100);
+            if ($discount_type == 'percentage') {
+                $price_after_discount = $price * $percentage_value;
+                $offer->card_discount_value = $offer->discount_value . '%';
+                $offer->card_price_after_discount = $price_after_discount . ' BHD';
+                $offer->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
+            } else {
+                $price_after_discount = $price - $offer->discount_value;
+                $offer->card_discount_value = $offer->discount_value . ' BHD';
+                $offer->card_price_after_discount = $price_after_discount . ' BHD';
+                $offer->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
             }
+            $offer->hour_price = $price;
 
-            return responseJson(1, 'success', GetMawaterOffersResource::collection($types)->response()->getData(true));
+            return responseJson(1, 'success', new GetMawaterOffersResource($offer));
 
         } else {
             return responseJson(0, 'error', __('message.something_wrong'));
         }
 
+    }
+
+    public function getOffers(DrivingTrainerRequest $request)
+    {
+        try {
+            $trainer = DrivingTrainer::active()->find($request->trainer_id);
+
+            $price = $trainer->hour_price;
+
+
+            // items not in mowater card and have offers end
+
+            // items have mowater card start
+            $offer = $trainer->offers()->first();
+
+            if (isset($offer)) {
+                $discount_type = $offer->discount_type;
+                $percentage_value = ((100 - $offer->discount_value) / 100);
+                if ($discount_type == 'percentage') {
+                    $price_after_discount = $price * $percentage_value;
+                    $trainer->card_discount_value = $offer->discount_value . '%';
+                    $trainer->card_price_after_discount = $price_after_discount . ' BHD';
+                    $trainer->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
+                } else {
+                    $price_after_discount = $price - $offer->discount_value;
+                    $trainer->card_discount_value = $offer->discount_value . ' BHD';
+                    $trainer->card_price_after_discount = $price_after_discount . ' BHD';
+                    $trainer->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
+                }
+                $trainer->hour_price = $price;
+                $trainer->is_mowater_card = true;
+            }
+            // items have mowater card end
+
+            //merge all results in one array
+
+            return responseJson(1, 'success', new GetTrainerOfferResource($trainer));
+        } catch (\Exception $e) {
+            return responseJson(0, 'error', $e->getMessage());
+        }
     }
 }

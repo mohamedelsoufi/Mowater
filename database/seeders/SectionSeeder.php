@@ -23,7 +23,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'الوكالات',
                 'ref_name' => 'Agency',
                 'section_id' => null,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -33,7 +33,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'معارض السيارات',
                 'ref_name' => 'CarShowroom',
                 'section_id' => null,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -43,7 +43,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'مكاتب التأجير',
                 'ref_name' => 'RentalOffice',
                 'section_id' => null,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -53,7 +53,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'الأرقام المميزة',
                 'ref_name' => 'SpecialNumber',
                 'section_id' => null,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -63,7 +63,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'السطحة',
                 'ref_name' => 'Wench',
                 'section_id' => null,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -73,7 +73,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'مراكز خدمات المركبات',
                 'ref_name' => 'AutoServiceCenter',
                 'section_id' => null,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -84,7 +84,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'الكراجات',
                 'ref_name' => 'Garage',
                 'section_id' => $AutoServiceCenters->id,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -94,7 +94,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'مراكز التلغيم ومزودي الطاقة',
                 'ref_name' => 'MiningCenter',
                 'section_id' => $AutoServiceCenters->id,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -104,7 +104,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'قطع الغيار والسكراب',
                 'ref_name' => 'SparePart',
                 'section_id' => $AutoServiceCenters->id,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -114,7 +114,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'مغسلة وتلميع وسرفيس السيارات',
                 'ref_name' => 'CarWash',
                 'section_id' => $AutoServiceCenters->id,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -124,7 +124,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'مراكز تبديل الإطارات',
                 'ref_name' => 'TireExchangeCenter',
                 'section_id' => $AutoServiceCenters->id,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -134,7 +134,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'مراكز الفحص الفني',
                 'ref_name' => 'TechnicalInspectionCenter',
                 'section_id' => $AutoServiceCenters->id,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -144,7 +144,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'متاجر الإكسسوارات',
                 'ref_name' => 'AccessoriesStore',
                 'section_id' => $AutoServiceCenters->id,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -154,7 +154,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'شركات التأمين',
                 'ref_name' => 'InsuranceCompany',
                 'section_id' => null,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -164,8 +164,8 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'مدربين السياقة',
                 'ref_name' => 'DrivingTrainer',
                 'section_id' => null,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
-                'reservation_cost' => 10,
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
+                'reservation_cost' => 180,
             ]);
 
         DB::table('sections')->insert(
@@ -174,7 +174,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'التوصيل',
                 'ref_name' => 'DeliveryMan',
                 'section_id' => null,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -184,7 +184,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'مواقع محطات الوقود',
                 'ref_name' => 'FuelStation',
                 'section_id' => null,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
 
@@ -194,7 +194,7 @@ class SectionSeeder extends Seeder
                 'name_ar' => 'مكاتب تخليص المعاملات المرورية',
                 'ref_name' => 'TrafficClearingOffice',
                 'section_id' => null,
-                'reservation_cost_type' => $faker->randomElement(['amount', 'discount']),
+                'reservation_cost_type' => $faker->randomElement(['amount', 'percentage']),
                 'reservation_cost' => 10,
             ]);
     }

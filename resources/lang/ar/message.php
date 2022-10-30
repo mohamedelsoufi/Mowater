@@ -96,10 +96,17 @@ return [
     'package_not_active' => 'الباقة غير مفعلة هنا !',
 
     'unsubscribed_discount_card' => "أنت غير مشترك في بطاقة مواتر!",
+    'scribed_discount_card' => "أنت بالفعل مشترك في بطاقة مواتر!",
+
 
     'unsubscribed_wallet' => "أنت لست غير مشترك في المحفظة",
     'wallet_not_enough_amount' => "ليس لديك ما يكفي من المال في محفظتك للاشتراك هنا",
 
-    "user_not_have_wallet" => "ليس لديك أي مبلغ في محفظتك ، يرجى شحن محفظتك."
+    "user_not_have_wallet" => "ليس لديك أي مبلغ في محفظتك ، يرجى شحن محفظتك.",
+    "invalid_login" => "خطأ فى البريد الإلكتروني أو كلمة المرور",
+    'error_admin_role_delete' => 'لا يمكنك حذف دور المدير المتميز',
+    'error_admin_role_update' => 'لا يمكنك تعديل دور المدير المتميز',
+
+    'branch_user_deletion_error' => 'لا يمكنك حذف هذا المستخدم لأن هذا المستخدم هو آخر مستخدم في قائمة الفرع.',
 ];
 

@@ -37,9 +37,10 @@ class Delivery extends Migration
             $table->string('conveyor_type')->nullable();
             $table->date('birth_date')->nullable();
             $table->string('profile_picture')->nullable();
-            $table->enum('status',['available', 'busy', 'not_available'])->nullable();
+            $table->enum('status', ['available', 'busy', 'not_available'])->nullable();
             $table->integer('number_of_views')->default(0)->nullable();
             $table->boolean('active_number_of_views')->default(1)->nullable();
+            $table->string('created_by')->nullable()->default('system@app.com');
             $table->timestamps();
 
             $table->foreign('brand_id')->on('brands')->references('id')->onUpdate('set null')->onDelete('set null');
@@ -48,6 +49,17 @@ class Delivery extends Migration
 
         });
 
+        //delivery areas
+        Schema::create('delivery_areas', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('delivery_man_id');
+            $table->unsignedBigInteger('country_id');
+            $table->unsignedBigInteger('city_id');
+            $table->unsignedBigInteger('area_id');
+            $table->float('price', 11, 2)->nullable();
+            $table->string('created_by')->nullable()->default('system@app.com');
+            $table->timestamps();
+        });
 
         //delivery reservations
         Schema::create('delivery_man_reservations', function (Blueprint $table) {
@@ -68,7 +80,7 @@ class Delivery extends Migration
             $table->timestamp('day_to_go');
             $table->string('request_type');
             $table->string('number_of_repetitions');
-            $table->float('price',11,2)->nullable();
+            $table->float('price', 11, 2)->nullable();
             $table->boolean('is_mawater_card')->default('0')->nullable();
             $table->string('status')->default('pending');
 

@@ -10,6 +10,7 @@ use App\Http\Requests\API\ShowDeliveryReservationRequest;
 use App\Http\Resources\Categories\GetCategoriesResource;
 use App\Http\Resources\Delivery\GetDeliveriesResource;
 use App\Http\Resources\Delivery\GetDeliveryMawaterCardOffersResource;
+use App\Http\Resources\Delivery\GetDeliveryOffersResource;
 use App\Http\Resources\Delivery\GetReservationResource;
 use App\Http\Resources\Trainers\GetMawaterOffersResource;
 use App\Models\Category;
@@ -257,25 +258,8 @@ class DeliveryManController extends Controller
             $types = DeliveryManCategory::where('delivery_man_id', $request->id)->whereHas('offers')->paginate(PAGINATION_COUNT);
             if (empty($types))
                 return responseJson(0,__('message.no_result'));
-            foreach ($types as $type) {
-                foreach ($type->offers as $offer) {
-                    $discount_type = $offer->discount_type;
-                    $percentage_value = ((100 - $offer->discount_value) / 100);
-                    if ($discount_type == 'percentage') {
-                        $price_after_discount = $type->price * $percentage_value;
-                        $type->card_discount_value = $offer->discount_value . '%';
-                        $type->card_price_after_discount = $price_after_discount . ' BHD';
-                        $type->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                    } else {
-                        $price_after_discount = $type->price - $offer->discount_value;
-                        $type->card_discount_value = $offer->discount_value . ' BHD';
-                        $type->card_price_after_discount = $price_after_discount . ' BHD';
-                        $type->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                    }
-                    $type->notes = $offer->notes;
-                    $type->makeHidden('offers');
-                }
-            }
+
+            GeneralMowaterCard($types);
 
             return responseJson(1, 'success', GetDeliveryMawaterCardOffersResource::collection($types)->response()->getData(true));
 
@@ -283,5 +267,36 @@ class DeliveryManController extends Controller
             return responseJson(0, 'error', __('message.something_wrong'));
         }
 
+    }
+
+    public function getOffers(ShowDeliveryManRequest $request)
+    {
+        try {
+            $man = DeliveryMan::active()->find($request->id);
+
+            // items not in mowater card and have offers start
+            $types = DeliveryManCategory::where('delivery_man_id', $request->id)->where('discount_type', '!=', '')->latest('id')->get();
+            if (isset($types))
+                $types->each(function ($item) {
+                    $item->is_mowater_card = false;
+                });
+            // items not in mowater card and have offers end
+
+            // items have mowater card start
+            $mowater_types = DeliveryManCategory::where('delivery_man_id', $request->id)->wherehas('offers')->latest('id')->get();
+
+            if (isset($mowater_types)) {
+                GeneralOffers($mowater_types);
+            }
+            // items have mowater card end
+
+            //merge all results in one array
+            $merged =collect(GetDeliveryOffersResource::collection($types))
+                ->merge(GetDeliveryOffersResource::collection($mowater_types))->paginate(PAGINATION_COUNT);
+
+            return responseJson(1, 'success', $merged);
+        } catch (\Exception $e) {
+            return responseJson(0, 'error', $e->getMessage());
+        }
     }
 }

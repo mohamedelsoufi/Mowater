@@ -17,6 +17,9 @@ class CreateDeliveryManCategoriesTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('delivery_man_id')->nullable();
             $table->unsignedBigInteger('category_id')->nullable();
+            $table->float('price',11,2)->nullable();
+            $table->float('discount',11,2)->nullable();
+            $table->enum('discount_type',['percentage','amount'])->nullable();
             $table->timestamps();
         });
     }

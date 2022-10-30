@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\City;
 use App\Models\PaymentMethod;
+use App\Models\Permission;
 use App\Models\TireExchangeCenter;
 use Illuminate\Database\Seeder;
 
@@ -24,6 +25,7 @@ class TireExchangeCenterSeeder extends Seeder
         $service_images = ['tire1.jpg', 'tire2.jpg', 'tire3.jpg', 'tire4.jpg', 'tire5.jpg',];
 
         $logo = ['logo_tire1.jpg', 'logo_tire2.jpg', 'logo_tire3.jpg', 'logo_tire4.jpg', 'logo_tire5.jpg',];
+        $discount_value = ['', '10', '20', '', '30'];
 
         foreach ($cities as $key => $city) {
             $tire_exchange_center = TireExchangeCenter::create([
@@ -37,12 +39,16 @@ class TireExchangeCenterSeeder extends Seeder
                 'address' => '5 شارع اللملكة',
             ]);
             for ($t = 0; $t < 5; $t++) {
+                $discount = $discount_value[array_rand($discount_value)];
+                $dis_type = ['percentage', 'amount'];
                 $services = $tire_exchange_center->tireExchangeService()->create([
                     'name_en' => 'Service name ' . $t,
                     'name_ar' => 'خدمة ' . $t,
                     'description_en' => 'Service description ' . $t,
                     'description_ar' => 'وصف خدمة ' . $t,
-                    'price' => mt_rand(550, 9526)
+                    'price' => mt_rand(550, 9526),
+                    'discount' => $discount,
+                    'discount_type' => $discount != '' ? $dis_type[array_rand($dis_type)] : '',
                 ]);
                 for ($s = 0; $s < 5; $s++) {
                     $services->files()->create([
@@ -55,7 +61,7 @@ class TireExchangeCenterSeeder extends Seeder
             $tire_exchange_center->discount_cards()->attach(1);
 
 
-            $center_services = $tire_exchange_center->tireExchangeService;
+            $center_services = $tire_exchange_center->tireExchangeService()->where('discount_type', '')->get();
 
             foreach ($center_services as $service) {
                 $service->offers()->create([
@@ -86,11 +92,36 @@ class TireExchangeCenterSeeder extends Seeder
                 'days' => 'Sun,Mon,Tue,Wed,Thu',
             ]);
 
-            $tire_exchange_center->organization_users()->create([
+            $org_user = $tire_exchange_center->organization_users()->create([
                 'user_name' => $name_en . ' ' . $key,
                 'email' => 'tire_exchange' . $key . '@gmail.com',
                 'password' => "123456",
             ]);
+
+            $org_role = $tire_exchange_center->roles()->create([
+                'name_en' => 'Organization super admin' .' '. $tire_exchange_center->name_en. $key,
+                'name_ar' => 'صلاحية المدير المتميز' .' '. $tire_exchange_center->name_ar. $key,
+                'display_name_ar' => 'صلاحية المدير المتميز' .' '. $tire_exchange_center->name_ar,
+                'display_name_en' => 'Organization super admin' .' '. $tire_exchange_center->name_en,
+                'description_ar' => 'له جميع الصلاحيات',
+                'description_en' => 'has all permissions',
+                'is_super' => 1,
+            ]);
+
+            foreach (\config('laratrust_seeder.org_roles') as $key => $values) {
+                foreach ($values as $value) {
+                    $permission = Permission::create([
+                        'name' => $value . '-' . $key.'-'. $tire_exchange_center->name_en. $key,
+                        'display_name_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $tire_exchange_center->name_ar,
+                        'display_name_en' => $value . ' ' . $key . ' ' . $tire_exchange_center->name_en,
+                        'description_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $tire_exchange_center->name_ar,
+                        'description_en' => $value . ' ' . $key . ' ' . $tire_exchange_center->name_en,
+                    ]);
+                    $org_role->attachPermissions([$permission]);
+                }
+            }
+
+            $org_user->attachRole($org_role);
 
         }
 

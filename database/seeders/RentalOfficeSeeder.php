@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Permission;
 use App\Models\RentalProperty;
 use Illuminate\Database\Seeder;
 
@@ -32,6 +33,7 @@ class RentalOfficeSeeder extends Seeder
         $manufacturing_year = ['2018', '2019', '2020', '2021', '2022', '2017'];
         $vehicle_type = array_keys(rental_car_types_arr());
         $phone = ['3366 7714', '1311 2262', '1725 3470', '1773 2426', '3838 7468', ''];
+        $discount_value = ['', '10', '20', '', '30'];
 
         $vehicle_images = [];
         for ($i = 1; $i <= 30; $i++) {
@@ -85,11 +87,36 @@ class RentalOfficeSeeder extends Seeder
                 'days' => 'Sun,Mon,Tue,Wed,Thu',
             ]);
 
-            $office->organization_users()->create([
+            $org_user = $office->organization_users()->create([
                 'user_name' => 'rental user ' . $counter,
                 'email' => $users[$counter],
                 'password' => "123456",
             ]);
+
+            $org_role = $office->roles()->create([
+                'name_en' => 'Organization super admin' .' '. $office->name_en,
+                'name_ar' => 'صلاحية المدير المتميز' .' '. $office->name_ar,
+                'display_name_ar' => 'صلاحية المدير المتميز' .' '. $office->name_ar,
+                'display_name_en' => 'Organization super admin' .' '. $office->name_en,
+                'description_ar' => 'له جميع الصلاحيات',
+                'description_en' => 'has all permissions',
+                'is_super' => 1,
+            ]);
+
+            foreach (\config('laratrust_seeder.org_roles') as $key => $values) {
+                foreach ($values as $value) {
+                    $permission = Permission::create([
+                        'name' => $value . '-' . $key.'-'. $office->name_en,
+                        'display_name_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $office->name_ar,
+                        'display_name_en' => $value . ' ' . $key . ' ' . $office->name_en,
+                        'description_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $office->name_ar,
+                        'description_en' => $value . ' ' . $key . ' ' . $office->name_en,
+                    ]);
+                    $org_role->attachPermissions([$permission]);
+                }
+            }
+
+            $org_user->attachRole($org_role);
 
             $office->rental_laws()->create([
                 'title_en' => 'Smoking was allowed in our car. If you smoke in one of our cars, additional cleaning costs will be charged to your account.',
@@ -111,6 +138,8 @@ class RentalOfficeSeeder extends Seeder
 
             for ($i = 0; $i < 8; $i++) {
                 $brand = Brand::inRandomOrder()->first()->id;
+                $discount = $discount_value[array_rand($discount_value)];
+                $dis_type = ['percentage', 'amount'];
                 $cars = $office->rental_office_cars()->create([
                     'vehicle_type' => $vehicle_type[array_rand($vehicle_type)],
                     'brand_id' => $brand,
@@ -118,10 +147,12 @@ class RentalOfficeSeeder extends Seeder
                     'car_class_id' => CarClass::inRandomOrder()->first()->id,
                     'manufacture_year' => $manufacturing_year[array_rand($manufacturing_year)],
                     'color_id' => Color::inRandomOrder()->first()->id,
-                    'daily_rental_price' => (50 + $counter),
-                    'weekly_rental_price' => (60 + $counter),
-                    'monthly_rental_price' => (90 + $counter),
-                    'yearly_rental_price' => (124 + $counter),
+                    'daily_rental_price' => mt_rand(50,150),
+                    'weekly_rental_price' => mt_rand(300,500),
+                    'monthly_rental_price' => mt_rand(4000,10000),
+                    'yearly_rental_price' => mt_rand(10000,50000),
+                    'discount' => $discount,
+                    'discount_type' => $discount != '' ? $dis_type[array_rand($dis_type)] : '',
                 ]);
                 $properties = RentalProperty::inRandomOrder()->take(3)->pluck('id');
                 $cars->properties()->attach($properties);
@@ -146,10 +177,13 @@ class RentalOfficeSeeder extends Seeder
             }
 
             for ($b = 0; $b < 4; $b++) {
+                $city = City::inRandomOrder()->first()->id;
                 $branch = $office->branches()->create([
-                    'name_en' => 'Branch ' . $b,
-                    'name_ar' => 'فرع ' . $b,
-                    'area_id' => Area::first()->id,
+                    'name_en' => $office->name_en . ' Branch ' . $b,
+                    'name_ar' => $office->name_ar . ' فرع ' . $b,
+                    'country_id' => 1,
+                    'city_id' => $city,
+                    'area_id' => Area::where('city_id',$city)->first()->id,
                     'address_en' => 'Branch Address ' . $b,
                     'address_ar' => 'عنوان الفرع ' . $b,
                     'category_id' => null,
@@ -170,19 +204,45 @@ class RentalOfficeSeeder extends Seeder
                     'website' => 'https://www.google.com/',
                     'instagram_link' => 'https://www.google.com/',
                 ]);
-                $branch->organization_users()->create([
-                    'user_name' => 'Agency branch user ' . $b,
+                $branch_user = $branch->organization_users()->create([
+                    'user_name' => 'Rental office branch user ' . $b,
                     'email' => 'bac' . $counter . $b . '@gmail.com',
                     'password' => "123456",
                 ]);
+
+                $branch_role = $branch->roles()->create([
+                    'name_en' => 'super admin' .' '. $office->name_en.' '.$branch->name_en,
+                    'name_ar' => 'صلاحية المدير المتميز' .' '.$office->name_en.' '. $branch->name_ar,
+                    'display_name_ar' => 'صلاحية المدير المتميز' .' '. $branch->name_ar,
+                    'display_name_en' => 'super admin' .' '. $branch->name_en,
+                    'description_ar' => 'له جميع الصلاحيات',
+                    'description_en' => 'has all permissions',
+                    'is_super' => 1,
+                ]);
+
+                foreach (\config('laratrust_seeder.org_roles') as $key => $values) {
+                    foreach ($values as $value) {
+                        $permission = Permission::create([
+                            'name' => $value . '-' . $key.'-'.$branch->name_en,
+                            'display_name_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $branch->name_ar,
+                            'display_name_en' => $value . ' ' . $key . ' ' . $branch->name_en,
+                            'description_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $branch->name_ar,
+                            'description_en' => $value . ' ' . $key . ' ' . $branch->name_en,
+                        ]);
+                        $branch_role->attachPermissions([$permission]);
+                    }
+                }
+
+                $branch_user->attachRole($branch_role);
+
                 $vehicles = $office->rental_office_cars()->pluck('id');
                 $branch->available_rental_cars()->attach($vehicles);
                 $branch->payment_methods()->attach($payment_methods);
                 $branch->phones()->create([
                     'country_code' => '+973',
                     'phone' => $phone[array_rand($phone)],
-                    'title_en' => $names[$b],
-                    'title_ar' => $names[$b]
+                    'title_en' => $branch->name_en,
+                    'title_ar' =>  $branch->name_ar
                 ]);
             }
         }

@@ -3,71 +3,99 @@
 namespace App\Http\Controllers\Dashboard\General;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SubCategoryRequest;
+use App\Http\Requests\Admin\SubCategoryRequest;
 use App\Models\Category;
 use App\Models\SubCategory;
 use Illuminate\Http\Request;
 
 class SubCategoryController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['permission:read-sub_categories'])->only('index');
+        $this->middleware(['permission:create-sub_categories'])->only('create');
+        $this->middleware(['permission:update-sub_categories'])->only('edit');
+        $this->middleware(['permission:delete-sub_categories'])->only('delete');
+    }
+
     public function index()
     {
-        $sub_categories = SubCategory::all();
-        $categories = Category::all();
-        return view('dashboard.general.sub_categories.index', compact('sub_categories','categories'));
+        try {
+            $sub_categories = SubCategory::latest('id')->get();
+            return view('admin.general.sub-categories.index', compact('sub_categories'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => $e->getMessage()]);
+        }
     }
 
 
     public function create()
     {
-        //
+        try {
+            $categories = Category::latest('id')->get();
+            return view('admin.general.sub-categories.create', compact('categories'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
     public function store(SubCategoryRequest $request)
     {
-        $sub_category = SubCategory::create($request->except(['_token']));
-        if ($sub_category) {
-            return redirect()->route('sub-categories.index')->with(['success'=>__('message.created_successfully')]);
-        } else {
-
-            return redirect()->back()->with(['error'=>__('message.something_wrong')]);
+        try {
+            $request_data = $request->except(['_token']);
+            $request_data['created_by'] = auth('admin')->user()->email;
+            SubCategory::create($request_data);
+            return redirect()->route('sub-categories.index')->with(['success' => __('message.created_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
         }
     }
 
 
     public function show($id)
     {
-        $show_category = SubCategory::find($id);
-        $show_category->makeVisible('name_en', 'name_ar');
-        $categories = Category::all();
-        $data = compact('show_category','categories');
-        return response()->json(['status' => true, 'data'=>$data]);
+        try {
+            $sub_category = SubCategory::find($id);
+            return view('admin.general.sub-categories.show', compact('sub_category'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
 
     public function edit($id)
     {
-        //
+        try {
+            $sub_category = SubCategory::find($id);
+            $categories = Category::latest('id')->get();
+            return view('admin.general.sub-categories.edit', compact('sub_category', 'categories'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
     public function update(SubCategoryRequest $request, $id)
     {
-        $sub_category = SubCategory::find($id);
-        $update_category = $sub_category->update($request->except(['_token']));
-        if ($update_category)
-        {
-            return redirect()->route('sub-categories.index')->with(['success'=>__('message.updated_successfully')]);
-        }else{
-            return redirect()->route('sub-categories.index')->with(['error'=> __('message.something_wrong')]);
+        try {
+            $sub_category = SubCategory::find($id);
+            $request_data = $request->except(['_token']);
+            $request_data['created_by'] = auth('admin')->user()->email;
+            $sub_category->update($request_data);
+            return redirect()->route('sub-categories.index')->with(['success' => __('message.updated_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
         }
     }
 
 
     public function destroy($id)
     {
-        $sub_category = SubCategory::find($id);
-        $sub_category->delete();
-        return redirect()->route('sub-categories.index')->with(['success'=> __('message.deleted_successfully')]);
-
+        try {
+            $sub_category = SubCategory::find($id);
+            $sub_category->delete();
+            return redirect()->route('sub-categories.index')->with(['success' => __('message.deleted_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 }

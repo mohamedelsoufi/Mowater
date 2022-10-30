@@ -8,8 +8,10 @@ use App\Http\Requests\API\RequestTechnicalInspectionRequest;
 use App\Http\Requests\API\ShowInspectionCenterServiceRequest;
 use App\Http\Requests\API\ShowTechnicalInspectionCenterRequest;
 use App\Http\Requests\API\ShowUserInspectionRequest;
+use App\Http\Resources\Insurance\InsuranceMowaterOffersResource;
 use App\Http\Resources\TechnicalInspectionCenter\GetCarWashesResource;
 use App\Http\Resources\TechnicalInspectionCenter\GetCentersResource;
+use App\Http\Resources\TechnicalInspectionCenter\InspectionCenterMowaterOffersResource;
 use App\Http\Resources\TechnicalInspectionCenter\InspectionCenterOffersResource;
 use App\Http\Resources\TechnicalInspectionCenter\InspectionCenterServicesResource;
 use App\Http\Resources\TechnicalInspectionCenter\RequestInspectionCenterResource;
@@ -84,6 +86,18 @@ class TechnicalInspectionCenterController extends Controller
     {
         try {
             $data = $this->center->mawaterOffers($request->id)->paginate(PAGINATION_COUNT);
+            if (empty($data))
+                return responseJson(0,__('message.no_result'));
+            return responseJson(1, 'success', InspectionCenterMowaterOffersResource::collection($data)->response()->getData(true));
+        } catch (\Exception $e) {
+            return responseJson(0, 'error', $e->getMessage());
+        }
+    }
+
+    public function getOffers(ShowTechnicalInspectionCenterRequest $request)
+    {
+        try {
+            $data = $this->center->offers($request->id)->paginate(PAGINATION_COUNT);
             if (empty($data))
                 return responseJson(0,__('message.no_result'));
             return responseJson(1, 'success', InspectionCenterOffersResource::collection($data)->response()->getData(true));

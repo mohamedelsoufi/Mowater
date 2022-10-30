@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\DiscountCard;
 use App\Models\PaymentMethod;
+use App\Models\Permission;
 use App\Models\SubCategory;
 use Illuminate\Database\Seeder;
 use App\Models\SpecialNumberOrganization;
@@ -23,7 +24,7 @@ class SpecialNumberSeeder extends Seeder
     public function run()
     {
 
-        $logos = ['m13.jpg', 'm14.jpg', 'm15.jpg', 'm16.png', 'm17.jpg'];
+        $logos = ['m14.jpg', 'm13.jpg', 'm15.jpg', 'm16.png', 'm17.jpg'];
         $users = ['s1@gmail.com', 's2@gmail.com', 's3@gmail.com', 's4@gmail.com', 's5@gmail.com'];
         $names = ['مؤسسة الزهيدي', 'مؤسسة البلوشي', 'مؤسسة إكزوتكس', 'مؤسسة الأهلي', 'مؤسسة البندر', 'مؤسسة الريان',];
 
@@ -42,13 +43,12 @@ class SpecialNumberSeeder extends Seeder
         $types = ['own', 'waiver'];
         $sizes = ['normal_plate', 'special_plate'];
         $is_special = [0, 1];
-        $price = [500, 250, 400, 700, 650];
 
         $categories = Category::where('section_id', 4)->get();
         $phone = ['3366 7714', '1311 2262', '1725 3470', '1773 2426', '3838 7468', ''];
+        $discount_value = ['', '10', '20', '', '30'];
+        $number_of_uses_times = [2, 4, 1];
 
-        $disc_type = ['amount','percentage'];
-        $number_of_uses_times = [2,4,1];
 
         for ($counter = 0; $counter < 5; $counter++) {
             $office = SpecialNumberOrganization::create([
@@ -95,13 +95,17 @@ class SpecialNumberSeeder extends Seeder
                 $sub_cats = $category->sub_categories()->get();
                 foreach ($sub_cats as $sub_cat) {
                     for ($i = 0; $i < 2; $i++) {
-                       $specia_number = $office->special_numbers()->create([
+                        $discount = $discount_value[array_rand($discount_value)];
+                        $dis_type = ['percentage', 'amount'];
+                        $specia_number = $office->special_numbers()->create([
                             'category_id' => $category->id,
                             'sub_category_id' => $sub_cat->id,
                             'number' => $numbers[$counting],
                             'size' => $sizes[array_rand($sizes)],
                             'transfer_type' => $types[array_rand($types)],
-                            'price' => $price[array_rand($price)] . + 5,
+                            'price' =>mt_rand(2000,40000),
+                            'discount' => $discount,
+                            'discount_type' => $discount != '' ? $dis_type[array_rand($dis_type)] : '',
                             'Include_insurance' => 1,
                             'is_special' => $is_special[array_rand($is_special)],
                             'availability' => 1
@@ -109,14 +113,7 @@ class SpecialNumberSeeder extends Seeder
                         $payment_methods = PaymentMethod::pluck('id');
                         $specia_number->payment_methods()->attach($payment_methods);
                         $office->discount_cards()->attach($discount_card->id);
-                        $specia_number->offers()->create([
-                            'discount_card_id' => $discount_card->id,
-                            'discount_type' => $disc_type[array_rand($disc_type)],
-                            'discount_value' => 10,
-                            'number_of_uses_times' =>'specific_number',
-                            'specific_number' => $number_of_uses_times[array_rand($number_of_uses_times)],
-                            'notes' => 'خصم 10 على التالي',
-                        ]);
+
                         $counting++;
                     }
 
@@ -125,14 +122,49 @@ class SpecialNumberSeeder extends Seeder
 
             }
 
+            $numbers_offers = $office->special_numbers()->where('discount_type', '')->get();
+            foreach ($numbers_offers as $ser) {
+                $dis_val = mt_rand(200,700);
+                $ser->offers()->create([
+                    'discount_card_id' => $discount_card->id,
+                    'discount_type' => 'amount',
+                    'discount_value' => $dis_val,
+                    'number_of_uses_times' => 'specific_number',
+                    'specific_number' => $number_of_uses_times[array_rand($number_of_uses_times)],
+                    'notes' => 'خصم '.$dis_val.' درهم على التالي',
+                ]);
+            }
 
-            $office->organization_users()->create([
+            $org_user = $office->organization_users()->create([
                 'user_name' => 'special number orgnization user ' . $counter,
                 'email' => $users[$counter],
                 'password' => "123456",
             ]);
 
+            $org_role = $office->roles()->create([
+                'name_en' => 'Organization super admin' . ' ' . $office->name_en,
+                'name_ar' => 'صلاحية المدير المتميز' . ' ' . $office->name_ar,
+                'display_name_ar' => 'صلاحية المدير المتميز' . ' ' . $office->name_ar,
+                'display_name_en' => 'Organization super admin' . ' ' . $office->name_en,
+                'description_ar' => 'له جميع الصلاحيات',
+                'description_en' => 'has all permissions',
+                'is_super' => 1,
+            ]);
 
+            foreach (\config('laratrust_seeder.org_roles') as $key => $values) {
+                foreach ($values as $value) {
+                    $permission = Permission::create([
+                        'name' => $value . '-' . $key . '-' . $office->name_en,
+                        'display_name_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $office->name_ar,
+                        'display_name_en' => $value . ' ' . $key . ' ' . $office->name_en,
+                        'description_ar' => __('words.' . $value) . ' ' . __('words.' . $key) . ' ' . $office->name_ar,
+                        'description_en' => $value . ' ' . $key . ' ' . $office->name_en,
+                    ]);
+                    $org_role->attachPermissions([$permission]);
+                }
+            }
+
+            $org_user->attachRole($org_role);
         }
 
 

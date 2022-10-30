@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Dashboard\General;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\AuctionRequest;
 use App\Models\Auction;
 use App\Models\Product;
 use App\Models\SpecialNumber;
 use App\Models\Vehicle;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use App\Http\Requests\AuctionRequest;
 
 class AuctionController extends Controller
 {

@@ -3,72 +3,76 @@
 namespace App\Http\Controllers\Dashboard\General;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SectionRequest;
+use App\Http\Requests\Admin\SectionRequest;
 use App\Models\DrivingTrainer;
 use App\Models\Section;
 use Illuminate\Http\Request;
 
 class SectionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(['permission:read-sections'])->only('index');
+        $this->middleware(['permission:update-sections'])->only('edit');
+    }
+
     public function index()
     {
-        $sections = Section::where('section_id', null)->get();
-        $sub_sections = Section::where('section_id', '!=', null)->get();
-
-        return view('dashboard.general.sections.index', compact('sections', 'sub_sections'));
+        try {
+            $sections = Section::where('section_id', null)->get();
+            return view('admin.general.sections.index', compact('sections'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
-
-    public function create()
+    public function subSection($id)
     {
-
+        try {
+            $sub_sections = Section::where('section_id', '!=', null)->where('section_id',$id)->get();
+            return view('admin.general.sections.sub_section', compact('sub_sections'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
-
-    public function store(SectionRequest $request)
-    {
-
-    }
-
 
     public function show($id)
     {
-        $show_section = Section::find($id);
-        $show_section->makeVisible('name_en', 'name_ar', 'reservation_cost_type', 'reservation_cost');
-        $data = compact('show_section');
-        return response()->json(['status' => true, 'data' => $data]);
+        try {
+            $section = Section::find($id);
+            return view('admin.general.sections.show', compact('section'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
-
 
     public function edit($id)
     {
-        //
+        try {
+            $section = Section::find($id);
+            $main_sections = Section::where('section_id', null)->get();
+            return view('admin.general.sections.edit', compact('section'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
     public function update(SectionRequest $request, $id)
     {
-        $section = Section::find($id);
-        if ($section['ref_name'] == "DrivingTrainer") {
-            foreach (DrivingTrainer::all() as $trainer) {
-                $trainer->update(['hour_price' => $request->reservation_cost]);
+        try {
+            $section = Section::find($id);
+            if ($section['ref_name'] == "DrivingTrainer") {
+                foreach (DrivingTrainer::all() as $trainer) {
+                    $trainer->update(['hour_price' => $request->reservation_cost]);
+                }
             }
-        }
-        $update_section = $section->update($request->except(['_token', 'ref_name']));
+            $section->update($request->except(['_token', 'ref_name']));
 
-        //$section = Section::find($id);
-        $section->updateImage();
-        if ($update_section) {
+            $section->updateImage();
+
             return redirect()->route('sections.index')->with(['success' => __('message.updated_successfully')]);
-        } else {
-            return redirect()->route('sections.index')->with(['error' => __('message.something_wrong')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
         }
-    }
-
-
-    public function destroy($id)
-    {
-        $section = Section::find($id);
-        $section->delete();
-        return redirect()->route('sections.index')->with(['success' => __('message.deleted_successfully')]);
-
     }
 }

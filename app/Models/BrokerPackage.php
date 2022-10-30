@@ -14,7 +14,8 @@ class BrokerPackage extends Model
 
     protected $table = 'broker_packages';
 
-    protected $fillable = ['id','name_en','name_ar','broker_id','coverage_type_id','price','discount','discount_type','active'];
+    protected $fillable = ['id','name_en','name_ar','broker_id','coverage_type_id','price',
+        'discount','discount_type','active','available','number_of_views','active_number_of_views'];
 
     protected $hidden = ['name_ar', 'name_en', 'created_at', 'updated_at'];
 

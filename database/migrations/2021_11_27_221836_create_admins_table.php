@@ -10,9 +10,13 @@ class CreateAdminsTable extends Migration {
 	{
         Schema::create('admins', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name')->nullable();
+            $table->string('first_name')->nullable();
+            $table->string('last_name')->nullable();
             $table->string('email')->nullable();
             $table->string('password');
+            $table->boolean('active')->nullable()->default(1);
+            $table->string('created_by')->nullable()->default('system@app.com');
+            $table->rememberToken();
             $table->timestamps();
         });
 	}

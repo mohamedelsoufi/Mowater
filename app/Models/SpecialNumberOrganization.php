@@ -25,7 +25,7 @@ class SpecialNumberOrganization extends Model
     protected $hidden = ['name_en', 'name_ar', 'description_en', 'description_ar', 'created_at', 'updated_at'];
     protected $appends = ['name', 'description', 'rating', 'rating_count', 'is_reviewed','is_favorite','favorites_count'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar')
@@ -39,13 +39,12 @@ class SpecialNumberOrganization extends Model
             return $this->description_ar;
         return $this->description_en;
     }
-    //// appends attributes end //////
+    // appends attributes end
 
-    //relationship start
-//    public function special_number_categories()
-//    {
-//        return $this->belongsToMany(SpecialNumberCategory::class, 'special_number_organization_categories');
-//    }
+    // relationship start
+    public function roles(){
+        return $this->morphMany(Role::class,'rolable');
+    }
 
     public function special_numbers()
     {
@@ -61,39 +60,24 @@ class SpecialNumberOrganization extends Model
     {
         return $this->hasManyThrough(Verification::class, SpecialNumber::class, 'special_number_organization_id', 'model_id');
     }
-    //relationship end
 
-    //Scopes
-    public function getActive()
+    public function country()
     {
-        return $this->active == 1 ? __('words.active') : __('words.inactive');
+        return $this->belongsTo('App\Models\Country');
     }
 
-    public function getAvailable()
+    public function city()
     {
-        return $this->available == 1 ? __('words.available_prop') : __('words.not_available_prop');
+        return $this->belongsTo('App\Models\City');
     }
 
-    public function getReservation_availability()
+    public function area()
     {
-        return $this->reservation_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
+        return $this->belongsTo('App\Models\Area');
     }
+    // relationship end
 
-    public function getDelivery_availability()
-    {
-        return $this->delivery_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
-    public function getReservation_active()
-    {
-        return $this->reservation_active == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
-    public function getDelivery_active()
-    {
-        return $this->delivery_active == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
+    // Scopes start
     public function scopeActive($query)
     {
         return $query->where('active', 1);
@@ -127,24 +111,47 @@ class SpecialNumberOrganization extends Model
             return $q->where('area_id', request()->area);
         });
     }
+    // Scopes end
 
-    public function country()
+    // accessors & Mutator start
+    public function getActive()
     {
-        return $this->belongsTo('App\Models\Country');
+        return $this->active == 1 ? __('words.active') : __('words.inactive');
     }
 
-    public function city()
+    public function getAvailable()
     {
-        return $this->belongsTo('App\Models\City');
+        return $this->available == 1 ? __('words.available_prop') : __('words.not_available_prop');
     }
 
-    public function area()
+    public function getReservation_availability()
     {
-        return $this->belongsTo('App\Models\Area');
+        return $this->reservation_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
+    }
+
+    public function getDelivery_availability()
+    {
+        return $this->delivery_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
+    }
+
+    public function getReservationActive()
+    {
+        return $this->reservation_active == 1 ? __('words.inactive') : __('words.inactive');
+    }
+
+    public function getDeliveryActive()
+    {
+        return $this->delivery_active == 1 ? __('words.active') : __('words.active');
+    }
+
+    public function getActiveNumberOfViews()
+    {
+        return $this->active_number_of_views == 1 ? __('words.active') : __('words.inactive');
     }
 
     public function getLogoAttribute($val)
     {
         return asset('uploads') . '/' . $val;
     }
+    // accessors & Mutator end
 }

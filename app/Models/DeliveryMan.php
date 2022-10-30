@@ -7,6 +7,7 @@ use App\Traits\Contacts\HasContacts;
 use App\Traits\Dayoffs\HasDayoffs;
 use App\Traits\Favourites\CanBeFavourites;
 use App\Traits\Files\HasFile;
+use App\Traits\Files\HasFiles;
 use App\Traits\OrganizationDiscountCards\HasOrganizationDiscountCard;
 use App\Traits\OrganizationUsers\HasOrgUsers;
 use App\Traits\PaymentMethods\HasPaymentMethods;
@@ -24,13 +25,13 @@ use Illuminate\Support\Facades\Validator;
 class DeliveryMan extends Model
 {
     use HasFactory, HasFile, HasOrgUsers, HasWorkTimes, HasDayoffs, HasReviews, CanBeFavourites,
-        HasAds, HasPhones, HasOrganizationDiscountCard,HasPaymentMethods, HasContacts;
+        HasAds, HasPhones, HasOrganizationDiscountCard,HasPaymentMethods, HasContacts,HasFiles;
     protected $table = 'delivery_man';
     protected $guarded = [];
     protected $hidden = ['name_ar', 'name_en', 'description_ar', 'description_en', 'created_at', 'updated_at'];
     protected $appends = ['name', 'description', 'is_reviewed', 'rating', 'rating_count', 'is_favorite','favorites_count', 'profile', 'file_url', 'age'];
 
-    //// appends attributes start //////
+    // appends attributes start
     public function getNameAttribute()
     {
         if (App::getLocale() == 'ar') {
@@ -46,8 +47,13 @@ class DeliveryMan extends Model
         }
         return $this->description_en;
     }
+    // appends attributes end
 
-    //relations
+    // relations start
+    public function roles(){
+        return $this->morphMany(Role::class,'rolable');
+    }
+
     public function reservations()
     {
         return $this->hasMany(DeliveryManReservation::class);
@@ -85,10 +91,20 @@ class DeliveryMan extends Model
 
     public function categories()
     {
-        return $this->belongsToMany(Category::class, DeliveryManCategory::class);
+        return $this->belongsToMany(Category::class, DeliveryManCategory::class)->withPivot(['discount',
+            'discount_type','price']);
     }
 
-    //Scopes
+    public function conditions(){
+        return $this->morphMany(Condition::class,'conditionable');
+    }
+
+    public function deliveryAreas(){
+        return $this->hasMany(DeliveryArea::class,'delivery_man_id');
+    }
+    // relations end
+
+    // Scopes start
     public function scopeActive($query)
     {
         return $query->where('active', 1);
@@ -98,7 +114,6 @@ class DeliveryMan extends Model
     {
         return $query->where('available', 1);
     }
-
 
     public function scopeSearch($query)
     {
@@ -209,8 +224,9 @@ class DeliveryMan extends Model
             return array('error : ' . $e->getMessage());
         }
     }
+    // Scopes end
 
-
+    // accessors & Mutator start
     public function getAgeAttribute()
     {
         $bday = new DateTime($this->birth_date); // Your date of birth
@@ -235,24 +251,9 @@ class DeliveryMan extends Model
         return $this->available == 1 ? __('words.available_prop') : __('words.not_available_prop');
     }
 
-    public function getReservation_availability()
+    public function getActiveNumberOfViews()
     {
-        return $this->reservation_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
-    public function getDelivery_availability()
-    {
-        return $this->delivery_availability == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
-    public function getReservation_active()
-    {
-        return $this->reservation_active == 1 ? __('words.available_prop') : __('words.not_available_prop');
-    }
-
-    public function getDelivery_active()
-    {
-        return $this->delivery_active == 1 ? __('words.available_prop') : __('words.not_available_prop');
+        return $this->active_number_of_views == 1 ? __('words.active') : __('words.inactive');
     }
 
     public function getStatusAttribute()
@@ -265,5 +266,6 @@ class DeliveryMan extends Model
             return __('words.not_available_prop');
 
     }
+    // accessors & Mutator  end
 
 }

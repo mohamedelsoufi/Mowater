@@ -3,69 +3,89 @@
 namespace App\Http\Controllers\Dashboard\General;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ColorRequest;
+use App\Http\Requests\Admin\ColorRequest;
 use App\Models\Color;
 use Illuminate\Http\Request;
 
 class ColorController extends Controller
 {
-    public function index()
+    public function __construct()
     {
-        $colors = Color::all();
-        return view('dashboard.general.colors.index', compact('colors'));
+        $this->middleware(['permission:read-colors'])->only('index');
+        $this->middleware(['permission:create-colors'])->only('create');
+        $this->middleware(['permission:update-colors'])->only('edit');
+        $this->middleware(['permission:delete-colors'])->only('delete');
     }
 
+    public function index()
+    {
+        try {
+            $colors = Color::latest()->get();
+            return view('admin.general.colors.index', compact('colors'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
+    }
 
     public function create()
     {
-        //
+        return view('admin.general.colors.create');
     }
 
     public function store(ColorRequest $request)
     {
-        $color = Color::create($request->except(['_token']));
-        if ($color) {
-            return redirect()->route('colors.index')->with(['success'=>__('message.created_successfully')]);
-        } else {
-
-            return redirect()->back()->with(['error'=>__('message.something_wrong')]);
+        try {
+            $request_data = $request->except(['_token']);
+            $request_data['created_by'] = auth('admin')->user()->email;
+            Color::create($request_data);
+            return redirect()->route('colors.index')->with(['success' => __('message.created_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
         }
     }
 
-
     public function show($id)
     {
-        $show_color = Color::find($id);
-        $show_color->makeVisible('color_name','color_name_ar');
-        $data = compact('show_color');
-        return response()->json(['status' => true, 'data'=>$data]);
+        try {
+            $color = Color::find($id);
+            return view('admin.general.colors.show', compact('color'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
-
 
     public function edit($id)
     {
-        //
+        try {
+            $color = Color::find($id);
+            return view('admin.general.colors.edit', compact('color'));
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 
     public function update(ColorRequest $request, $id)
     {
-        $color = Color::find($id);
-
-        $update_color = $color->update($request->except(['_token']));
-        if ($update_color)
-        {
-            return redirect()->route('colors.index')->with(['success'=>__('message.updated_successfully')]);
-        }else{
-            return redirect()->route('colors.index')->with(['error'=> __('message.something_wrong')]);
+        try {
+            $color = Color::find($id);
+            $request_data = $request->except(['_token']);
+            $request_data['created_by'] = auth('admin')->user()->email;
+            $color->update($request_data);
+            return redirect()->route('colors.index')->with(['success' => __('message.updated_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
         }
     }
 
 
     public function destroy($id)
     {
-        $color = Color::find($id);
-        $color->delete();
-        return redirect()->route('colors.index')->with(['success'=> __('message.deleted_successfully')]);
-
+        try {
+            $color = Color::find($id);
+            $color->delete();
+            return redirect()->route('colors.index')->with(['success' => __('message.deleted_successfully')]);
+        } catch (\Exception $e) {
+            return redirect()->back()->with(['error' => __('message.something_wrong')]);
+        }
     }
 }

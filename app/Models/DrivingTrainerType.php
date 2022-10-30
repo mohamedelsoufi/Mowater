@@ -10,14 +10,12 @@ class DrivingTrainerType extends Model
     use HasFactory;
 
     protected $table = 'driving_trainer_types';
+
     protected $guarded = [];
+
     public $timestamps = true;
 
-    public function offers()
-    {
-        return $this->morphMany(Offer::class, 'offerable');
-    }
-
+    // relations start
     public function trainer()
     {
         return $this->belongsTo(DrivingTrainer::class,'driving_trainer_id');
@@ -27,4 +25,6 @@ class DrivingTrainerType extends Model
     {
         return $this->belongsTo(TrainingType::class,'training_type_id');
     }
+    // relations end
+
 }

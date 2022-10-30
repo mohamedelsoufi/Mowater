@@ -55,27 +55,30 @@ class TechnicalInspectionCenterRepository implements TechnicalInspectionCenterIn
                 return responseJson(0, 'error', __('message.something_wrong'));
             }
             $services = $center->inspectionCenterService()->whereHas('offers')->get();
-
-            foreach ($services as $service) {
-                foreach ($service->offers as $offer) {
-                    $discount_type = $offer->discount_type;
-                    $percentage_value = ((100 - $offer->discount_value) / 100);
-                    if ($discount_type == 'percentage') {
-                        $price_after_discount = $service->price * $percentage_value;
-                        $service->card_discount_value = $offer->discount_value . '%';
-                        $service->card_price_after_discount = $price_after_discount . ' BHD';
-                        $service->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                    } else {
-                        $price_after_discount = $service->price - $offer->discount_value;
-                        $service->card_discount_value = $offer->discount_value . ' BHD';
-                        $service->card_price_after_discount = $price_after_discount . ' BHD';
-                        $service->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                    }
-                    $service->notes = $offer->notes;
-                    $service->makeHidden('offers');
-                }
-            }
+            GeneralMowaterCard($services);
             return $services;
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
+
+    public function offers($request)
+    {
+        try {
+            $center = $this->model->find($request);
+
+            $services = $center->inspectionCenterService()->where('discount_type', '!=', '')->latest('id')->get();
+            if (isset($services))
+                $services->each(function ($item) {
+                    $item->is_mowater_card = false;
+                });
+
+
+            $mowater_services = $center->inspectionCenterService()->whereHas('offers')->get();
+            if (isset($mowater_services)) {
+                GeneralOffers($mowater_services);
+            }
+            return collect($services)->merge($mowater_services)->paginate(PAGINATION_COUNT);
         } catch (\Exception $e) {
             return $e->getMessage();
         }

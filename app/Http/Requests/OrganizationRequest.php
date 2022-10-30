@@ -6,21 +6,11 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class OrganizationRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
         $user = auth()->guard('web')->user();
@@ -28,8 +18,8 @@ class OrganizationRequest extends FormRequest
         $model_type = $user->organizable_type;
         $model = new $model_type;
         return [
-//            'name_en' => 'required|unique:' . $model->getTable() . ',name_en,' . $this->id,
-            'name_ar' => 'required',
+            'name_en' => 'required|unique:' . $model->getTable() . ',name_en,' . $this->id,
+            'name_ar' => 'required|unique:' . $model->getTable() . ',name_ar,' . $this->id,
 //            'description_en' => 'required|unique:' . $model->getTable() . ',description_en,' . $this->id,
 //            'description_ar' => 'required|unique:' . $model->getTable() . ',description_ar,' . $this->id,
             //'tax_number' => 'required|unique:'.$model->getTable().',tax_number,'.$this->id,

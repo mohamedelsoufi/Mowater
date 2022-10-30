@@ -7,6 +7,8 @@ use App\Http\Requests\API\NearestLocationRequest;
 use App\Http\Requests\API\ReserveWenchRequest;
 use App\Http\Requests\API\ShowReservationRequest;
 use App\Http\Requests\API\ShowWenchRequest;
+use App\Http\Resources\Services\GetServiceMowaterOffersResource;
+use App\Http\Resources\Services\GetServiceOffersResource;
 use App\Http\Resources\Wenches\GetNearestResource;
 use App\Http\Resources\Wenches\GetServicesResource;
 use App\Http\Resources\Wenches\GetWenchesResource;
@@ -41,7 +43,6 @@ class WenchController extends Controller
             $wench = Wench::active()->find($request->id);
             if (empty($wench))
                 return responseJson(0, __('message.no_result'));
-//            return$wench->services;
             //update number of views start
             updateNumberOfViews($wench);
             //update number of views end
@@ -231,7 +232,7 @@ class WenchController extends Controller
         try {
             $wench = Wench::active()->find($request->id);
 
-            $services = $wench->services()->latest('id')->paginate(PAGINATION_COUNT);
+            $services = $wench->services()->active()->latest('id')->paginate(PAGINATION_COUNT);
             if ($services->count() == 0)
                 return responseJson(0, __('message.no_services_for_this_wench'));
 
@@ -290,31 +291,45 @@ class WenchController extends Controller
             $services = $wench->services()->wherehas('offers')->paginate(PAGINATION_COUNT);
             if (empty($services))
                 return responseJson(0, __('message.no_result'));
-            foreach ($services as $service) {
-                foreach ($service->offers as $offer) {
-                    $discount_type = $offer->discount_type;
-                    $percentage_value = ((100 - $offer->discount_value) / 100);
-                    if ($discount_type == 'percentage') {
-                        $price_after_discount = $service->price * $percentage_value;
-                        $service->card_discount_value = $offer->discount_value . '%';
-                        $service->card_price_after_discount = $price_after_discount . ' BHD';
-                        $service->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                    } else {
-                        $price_after_discount = $service->price - $offer->discount_value;
-                        $service->card_discount_value = $offer->discount_value . ' BHD';
-                        $service->card_price_after_discount = $price_after_discount . ' BHD';
-                        $service->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                    }
-                    $service->notes = $offer->notes;
-                    $service->makeHidden('offers');
-                }
-            }
 
-            return responseJson(1, 'success',  $services);
+            GeneralMowaterCard($services);
+
+            return responseJson(1, 'success',  GetServiceMowaterOffersResource::collection($services)->response()->getData(true));
 
         } else {
             return responseJson(0, 'error', __('message.something_wrong'));
         }
 
+    }
+
+    public function getOffers(ShowWenchRequest $request)
+    {
+        try {
+            $wench = Wench::active()->find($request->id);
+
+            // items not in mowater card and have offers start
+            $services = $wench->services()->where('discount_type', '!=', '')->latest('id')->get();
+            if (isset($services))
+                $services->each(function ($item) {
+                    $item->is_mowater_card = false;
+                });
+            // items not in mowater card and have offers end
+
+            // items have mowater card start
+            $mowater_services = $wench->services()->wherehas('offers')->latest('id')->get();
+
+            if (isset($mowater_services)) {
+                GeneralOffers($mowater_services);
+            }
+            // items have mowater card end
+
+            //merge all results in one array
+            $merged =collect(GetServiceOffersResource::collection($services))
+                ->merge(GetServiceOffersResource::collection($mowater_services))->paginate(PAGINATION_COUNT);
+
+            return responseJson(1, 'success', $merged);
+        } catch (\Exception $e) {
+            return responseJson(0, 'error', $e->getMessage());
+        }
     }
 }

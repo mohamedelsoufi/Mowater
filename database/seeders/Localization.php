@@ -20,6 +20,10 @@ class Localization extends Seeder
             'name_en' => 'Bahrain',
             'name_ar' => 'البحرين',
         ]);
+        $country->file()->create([
+            'path' => 'seeder/bahrain.png',
+            'type' => 'country_image'
+        ]);
 
         $city1 = City::create([
             'name_en' => 'Northern Governorate',

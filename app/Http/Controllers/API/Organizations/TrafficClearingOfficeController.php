@@ -7,6 +7,7 @@ use App\Http\Requests\API\ShowTrafficServiceRequest;
 use App\Http\Requests\API\StoreTrafficClearingOfficeRequest;
 use App\Http\Requests\API\ShowTrafficClearingOfficeRequest;
 use App\Http\Resources\TrafficClearingOffices\GetServicesResource;
+use App\Http\Resources\TrafficClearingOffices\GetTrafficClearingOffersResource;
 use App\Http\Resources\TrafficClearingOffices\GetTrafficClearingOfficeMawaterOffersResource;
 use App\Http\Resources\TrafficClearingOffices\GetTrafficClearingOfficesResource;
 use App\Http\Resources\TrafficClearingOffices\ShowTrafficClearingOfficeRequestResource;
@@ -90,25 +91,8 @@ class TrafficClearingOfficeController extends Controller
                 $services = TrafficClearingServiceUse::where('traffic_clearing_office_id', $request->id)->whereHas('offers')->paginate(PAGINATION_COUNT);
                 if (empty($services))
                     return responseJson(0, __('message.no_result'));
-                foreach ($services as $service) {
-                    foreach ($service->offers as $offer) {
-                        $discount_type = $offer->discount_type;
-                        $percentage_value = ((100 - $offer->discount_value) / 100);
-                        if ($discount_type == 'percentage') {
-                            $price_after_discount = $service->price * $percentage_value;
-                            $service->card_discount_value = $offer->discount_value . '%';
-                            $service->card_price_after_discount = $price_after_discount . ' BHD';
-                            $service->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                        } else {
-                            $price_after_discount = $service->price - $offer->discount_value;
-                            $service->card_discount_value = $offer->discount_value . ' BHD';
-                            $service->card_price_after_discount = $price_after_discount . ' BHD';
-                            $service->card_number_of_uses_times = $offer->number_of_uses_times == 'endless' ? __('words.endless') : $offer->specific_number;
-                        }
-                        $service->notes = $offer->notes;
-                        $service->makeHidden('offers');
-                    }
-                }
+
+                GeneralMowaterCard($services);
 
                 return responseJson(1, 'success', GetTrafficClearingOfficeMawaterOffersResource::collection($services)->response()->getData(true));
 
@@ -119,6 +103,37 @@ class TrafficClearingOfficeController extends Controller
             return responseJson(0, 'error', $e->getMessage());
         }
 
+    }
+
+    public function getOffers(ShowTrafficClearingOfficeRequest $request)
+    {
+        try {
+            $traffic_clearing_office = TrafficClearingOffice::active()->find($request->id);
+
+            // items not in mowater card and have offers start
+            $services = TrafficClearingServiceUse::where('traffic_clearing_office_id', $request->id)->where('discount_type', '!=', '')->latest('id')->get();
+            if (isset($services))
+                $services->each(function ($item) {
+                    $item->is_mowater_card = false;
+                });
+            // items not in mowater card and have offers end
+
+            // items have mowater card start
+            $mowater_services = TrafficClearingServiceUse::where('traffic_clearing_office_id', $request->id)->wherehas('offers')->latest('id')->get();
+
+            if (isset($mowater_services)) {
+                GeneralOffers($mowater_services);
+            }
+            // items have mowater card end
+
+            //merge all results in one array
+            $merged =collect(GetTrafficClearingOffersResource::collection($services))
+                ->merge(GetTrafficClearingOffersResource::collection($mowater_services))->paginate(PAGINATION_COUNT);
+
+            return responseJson(1, 'success', $merged);
+        } catch (\Exception $e) {
+            return responseJson(0, 'error', $e->getMessage());
+        }
     }
 
     public function storeTrafficClearingOfficeRequests(StoreTrafficClearingOfficeRequest $request)

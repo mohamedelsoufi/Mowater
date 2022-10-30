@@ -1,135 +1,95 @@
 @extends('organization.layouts.app')
-@section('title','Mawatery | Reviews')
+@section('title', __('words.show_reviews'))
 @section('content')
-    <div class="content-body">
-        <div class="container-fluid">
-            <div class="row page-titles mx-0">
-                <div class="col-sm-6 p-md-0">
-                    <div class="welcome-text">
-                        <h4>{{__('words.reviews')}} <small class="text-secondary">({{ $reviews->count() }}
-                                )</small></h4>
+
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>{{__('words.dashboard') .' '. $record->name}}</h1>
+                        <br>
+                        <b class="text-success">{{__('words.total_rates') .': '. $record->rating}}</b>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb {{app()->getLocale() == 'ar' ? 'float-sm-left' :  'float-sm-right'}}">
+                            <li class="breadcrumb-item"><a
+                                    href="{{route('organization.home')}}">{{__('words.home')}}</a></li>
+                            <li class="breadcrumb-item active">{{__('words.show_reviews')}}</li>
+                        </ol>
                     </div>
                 </div>
-                <div class="col-sm-6 p-md-0 justify-content-sm-end mt-2 mt-sm-0 d-flex">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{{route('organization.home')}}">{{__('words.home')}}</a>
-                        </li>
-                        <li class="breadcrumb-item active">{{__('words.reviews')}}</li>
-                    </ol>
-                </div>
-                @include('organization.includes.alerts.success')
-                @include('organization.includes.alerts.errors')
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        {{-- create modal start --}}
-                        <div class="card-header">
-                            <!-- Button trigger modal -->
-                           
+            </div><!-- /.container-fluid -->
+        </section>
+        @include('organization.includes.alerts.success')
+        @include('organization.includes.alerts.errors')
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
 
-                        </div>
-                        {{-- create modal end --}}
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="example" class="display" style="min-width: 845px">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">{{__('words.show_reviews')}}</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="example1" class="table table-bordered table-striped text-center">
                                     <thead>
-                                    <tr class="text-center">
-                                        <th>{{__('words.created_at')}}</th>
+                                    <tr>
+                                        <th>#</th>
                                         <th>{{__('words.user')}}</th>
                                         <th>{{__('words.rate')}}</th>
                                         <th>{{__('words.review')}}</th>
+                                        <th>{{__('words.created_at')}}</th>
                                         <th>{{__('words.actions')}}</th>
                                     </tr>
                                     </thead>
-                                    <tbody id="display_data">
-                                        @foreach($reviews as $review)
-                                            <tr class="text-center">
-                                                <td>{{$review->created_at}}</td>
-                                                <td>{{$review->user ? $review->user->name : '' }}</td>
-                                                <td>{{$review->rate}}</td>
-                                                <td>{{Str::limit($review->review , 20)}}</td>
+                                    <tbody>
+                                    @foreach($reviews as $key => $review)
+                                        <tr>
+                                            <td>{{$key+1}}</td>
+                                            <td>{{$review->user ? $review->user->nickname.' '.$review->user->first_name .' '. $review->user->last_name: ''}}</td>
+                                            <td>{{$review->rate}}</td>
+                                            <td>{{Str::limit($review->review , 20)}}</td>
+                                            <td>{{createdAtFormat($review->created_at)}}</td>
+                                            <td class="action">
+                                                @if(auth('web')->user()->hasPermission(['read-reviews-' . $record->name_en]))
+                                                    <a href="{{route('organization.reviews.show',$review->id)}}"
+                                                       class="btn btn-outline-info" data-toggle="tooltip"
+                                                       title="{{__('words.show')}}">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                @endif
 
-                                                <td>
-                                                    <button type="button" id="show_review"
-                                                            class="btn btn-outline-info"
-                                                            data-toggle="modal"
-                                                            data-target="#editReview"
-                                                            onclick="get_review_data({{$review->id}})">
-                                                        {{__('words.show')}}
-                                                    </button>
-
-                                                    <button type="button" class="btn btn-outline-danger"
-                                                            data-toggle="modal"
-                                                            data-target="#ModalDelete"
-                                                            onclick="get_review_data({{$review->id}})">
-                                                        {{__('words.delete')}}
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        @endforeach
+                                                @if(auth('web')->user()->hasPermission(['delete-reviews-' . $record->name_en]))
+                                                    <a href="" class="btn btn-outline-danger"
+                                                       data-toggle="modal"
+                                                       data-target="#ModalDelete{{$review->id}}"
+                                                       title="{{__('words.delete')}}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                    @include('organization.reviews.deleteModal')
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                     </tbody>
 
                                 </table>
                             </div>
+                            <!-- /.card-body -->
                         </div>
+                        <!-- /.card -->
                     </div>
+                    <!-- /.col -->
                 </div>
+                <!-- /.row -->
             </div>
-        </div>
+            <!-- /.container-fluid -->
+        </section>
+
     </div>
-    @include('organization.reviews.update')
-    @include('organization.reviews.delete')
-@endsection
-
-@section('scripts')
-    <script type="text/javascript">
-
-        @if(count($errors) > 0 && !$errors->has('update_modal'))
-        $('#storereview').modal('show');
-
-        @elseif($errors->has('update_modal'))
-        $('#editreview').modal('show');
-        @foreach ($errors->get('update_modal') as $error)
-        {{--console.log({{ $error }});--}}
-        get_review_data({{$error}});
-
-        @endforeach
-        @endif
-
-        function get_review_data(id) {
-            var url = "{{route('organization.review.show' , ':id')}}";
-            url = url.replace(':id', id);
-            $.ajax({
-                type: "Get",
-                url: url,
-                datatype: 'JSON',
-                success: function (data) {
-                    console.log(data);
-                    if (data.status == true) {
-                        $('#created_at').val(data.data.created_at);
-                        $('#user_name').val(data.data.user.name);
-                        $('#rate').val(data.data.rate);
-                        $('#review').val(data.data.review);
-                       
-                        let destroy = "{{route('organization.review.destroy' , ':id')}}";
-                        
-                        destroy = destroy.replace(':id', data.data.id);
-                    
-                        //$('#update_form').attr('action', update);
-                        $('#delete_form').attr('action', destroy);
-
-
-                        $('#text_meesage').text(data.data.show_review.name);
-                    }
-                },
-                error: function (reject) {
-                    alert(reject);
-                }
-            });
-        }
-
-    </script>
 
 @endsection
-

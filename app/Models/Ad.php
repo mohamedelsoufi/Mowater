@@ -10,14 +10,15 @@ use Illuminate\Support\Facades\App;
 class Ad extends Model
 {
     use HasFactory, HasFiles;
-    protected $fillable = array('organizationable_type', 'organizationable_id', 'title_en', 'title_ar', 'description_en',
+    protected $fillable = array('organizationable_type', 'organizationable_id','module_type','module_id', 'title_en', 'title_ar', 'description_en',
         'description_ar', 'created_at', 'updated_at', 'ad_type_id', 'price', 'negotiable', 'country_id',
-        'city_id', 'area_id', 'start_date', 'end_date', 'number_of_views','active_number_of_views');
+        'city_id', 'area_id', 'start_date', 'end_date', 'number_of_views','active_number_of_views',
+        'created_by','active','status','image','link');
     protected $appends = ['title', 'description'];
     protected $hidden = ['title_en', 'title_ar', 'description_en',
         'description_ar', 'created_at', 'updated_at'];
 
-    //appends attributes start
+    // appends attributes start
     public function getTitleAttribute()
     {
         if (App::getLocale() == 'ar') {
@@ -33,9 +34,9 @@ class Ad extends Model
         }
         return $this->description_en;
     }
-    //appends attributes End
+    // appends attributes End
 
-    //relations start
+    // relations start
     public function organizationable()
     {
         return $this->morphTo();
@@ -65,9 +66,9 @@ class Ad extends Model
     {
         return $this->belongsTo(AdType::class);
     }
-    //relations end
+    // relations end
 
-    //Scopes start
+    // Scopes start
     public function scopeActive($query)
     {
         return $query->where('active', 1);
@@ -111,9 +112,24 @@ class Ad extends Model
         return $this->availability == 1 ? __('words.not_available_prop') : __('words.available_prop');
     }
 
+    public function getActive()
+    {
+        return $this->active == 1 ? __('words.active') : __('words.inactive');
+    }
+
+    public function getActiveNumberOfViews()
+    {
+        return $this->active_number_of_views == 1 ? __('words.active') : __('words.inactive');
+    }
+
     public function getStatus()
     {
-        return $this->status == 1 ? __('words.available_prop') : __('words.not_available_prop');
+        if ($this->status == 'pending')
+            return __('words.pending');
+        if ($this->status == 'approved')
+            return __('words.approved');
+        if ($this->status == 'rejected')
+            return __('words.rejected');
     }
 
     public function getNegotiable()
@@ -154,10 +170,10 @@ class Ad extends Model
             return $this->link = request()->getSchemeAndHttpHost() . '/api/show-broker-package?id=' . $this->module_id;
 
         if ($this->module_type == 'App\\Models\\MiningCenterService')
-            return $this->link = request()->getSchemeAndHttpHost() . '/api/show-mining-center?id=' . $this->module_id;
+            return $this->link = request()->getSchemeAndHttpHost() . '/api/show-mining-center-service?id=' . $this->module_id;
 
         if ($this->module_type == 'App\\Models\\RentalOfficeCar')
-            return $this->link = request()->getSchemeAndHttpHost() . '/api/show-rental-office?id=' . $this->module_id;
+            return $this->link = request()->getSchemeAndHttpHost() . '/api/show-rental-office-car?id=' . $this->module_id;
 
         if ($this->module_type == 'App\\Models\\SpecialNumber')
             return $this->link = request()->getSchemeAndHttpHost() . '/api/show-special_number?id=' . $this->module_id;
